@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>حدائق الياسمين | Jasmine Gardens</title>
+    <meta name="description" content="تنسيق حدائق الكويت، تركيب مظلات، عشب صناعي، وتصميم خارجي. Jasmine Gardens Landscaping Kuwait." />
+    <meta name="keywords" content="تنسيق حدائق, عشب صناعي, مظلات الكويت, تصميم حدائق, landscaping kuwait, artificial grass, pergolas" />
+    <meta name="author" content="Jasmine Gardens" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://jasminegardens.com/" />
+    <meta property="og:title" content="حدائق الياسمين | Jasmine Gardens Landscape" />
+    <meta property="og:description" content="نحول مساحتك الخارجية إلى واحة خضراء. خبراء تنسيق الحدائق والمظلات في الكويت." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=1200" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://jasminegardens.com/" />
+    <meta property="twitter:title" content="Jasmine Gardens | Landscape Design" />
+    <meta property="twitter:description" content="Premium landscaping, shades, and outdoor design services in Kuwait." />
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?q=80&w=1200" />
+    
+    <!-- Google Fonts: Cairo for Arabic, Poppins for English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#f0fdf4',
+                100: '#dcfce7',
+                500: '#22c55e',
+                600: '#16a34a',
+                700: '#15803d',
+                800: '#166534',
+                900: '#14532d',
+              },
+              secondary: '#d97706', // Amber/Wood color
+            },
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+              arabic: ['Cairo', 'sans-serif'],
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        scroll-behavior: smooth;
+      }
+      body[dir="rtl"] {
+        font-family: 'Cairo', sans-serif;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #16a34a; 
+        border-radius: 5px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #15803d; 
+      }
+      .image-loading {
+        filter: blur(20px);
+        transition: filter 0.5s ease-out;
+      }
+      .image-loaded {
+        filter: blur(0);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "framer-motion": "https://aistudiocdn.com/framer-motion@^12.23.24",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body class="bg-gray-50 text-gray-800 antialiased selection:bg-primary-500 selection:text-white">
+    <div id="root"></div>
+  </body>
+</html>
