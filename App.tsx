@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe, Phone, Mail, MapPin, Sun, Leaf, Flower2, Umbrella, Star, CheckCircle, ZoomIn, Quote, ArrowRight, User, LogOut } from 'lucide-react';
-import { Language, ProjectItem, Translation } from './types';
+import { Menu, X, Globe, Phone, Mail, MapPin, Sun, Leaf, Flower2, Umbrella, Star, CheckCircle, ZoomIn, Quote, ArrowRight, User, LogOut, Play, Video, Send, FileText, ChevronDown } from 'lucide-react';
+import { Language, ProjectItem, Translation, ArticleItem } from './types';
 import { TRANSLATIONS, IMAGES, PROJECTS_DATA, TESTIMONIALS_DATA } from './constants';
 import { Logo } from './components/Logo';
 import FloatingActions from './components/FloatingWhatsApp';
@@ -10,20 +10,22 @@ import LegalModal from './components/LegalModal';
 import LoginModal from './components/LoginModal';
 import AnimatedCounter from './components/AnimatedCounter';
 
-// Component for smooth image loading
+// Component for smooth image loading with fallback
 const FadeInImage = ({ src, alt, className }: { src: string, alt: string, className?: string }) => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(false);
+
   return (
-    <div className={`relative overflow-hidden ${className}`}>
-      {!isLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse" />}
+    <div className={`relative overflow-hidden ${className} bg-gray-100`}>
+      {!isLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
+        <Logo className="w-8 h-8 opacity-20 grayscale" />
+      </div>}
       <motion.img
-        src={src}
+        src={error ? 'https://images.unsplash.com/photo-1558905540-21290104f953?q=80&w=1000' : src}
         alt={alt}
-        className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        initial={{ opacity: 0, filter: "blur(10px)" }}
-        animate={{ opacity: isLoaded ? 1 : 0, filter: isLoaded ? "blur(0px)" : "blur(10px)" }}
-        transition={{ duration: 0.7 }}
+        className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}
         onLoad={() => setIsLoaded(true)}
+        onError={() => { setIsLoaded(true); setError(true); }}
       />
     </div>
   );
@@ -33,52 +35,23 @@ const FadeInImage = ({ src, alt, className }: { src: string, alt: string, classN
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
-    // Use 'instant' to prevent fighting with CSS scroll-behavior: smooth during page transitions
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [pathname]);
   return null;
 };
 
-interface NavButtonProps {
-  to: string;
-  label: string;
-  isActive: boolean;
-  onClick?: () => void;
-}
-
-// Navigation Link Component with Animation
-const NavButton: React.FC<NavButtonProps> = ({ to, label, isActive, onClick }) => (
-  <Link to={to} onClick={onClick} className="relative inline-block">
-    <motion.div
-      className={`px-4 py-2 rounded-full font-medium transition-colors ${
-        isActive 
-          ? 'text-primary-700 bg-primary-50 font-bold' 
-          : 'text-gray-600'
-      }`}
-      whileHover={{ 
-        scale: 1.1, 
-        backgroundColor: isActive ? undefined : '#f0fdf4', // primary-50
-        color: '#15803d' // primary-700
-      }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-    >
-      {label}
-    </motion.div>
-  </Link>
-);
-
-// --- Page Components ---
-
 const PageHeader = ({ title, subtitle }: { title: string, subtitle?: string }) => (
   <div className="relative bg-primary-900 text-white py-24 pt-32 overflow-hidden">
     <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
+    {/* Abstract Shapes */}
     <div className="absolute -right-20 top-0 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl"></div>
+    <div className="absolute -left-20 bottom-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
+    
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
       <motion.h1 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-4xl md:text-5xl font-bold mb-4"
+        className="text-4xl md:text-5xl font-bold mb-4 font-arabic"
       >
         {title}
       </motion.h1>
@@ -96,6 +69,74 @@ const PageHeader = ({ title, subtitle }: { title: string, subtitle?: string }) =
   </div>
 );
 
+const ArticlesSection = ({ t, lang }: { t: any, lang: Language }) => {
+    const [expandedArticle, setExpandedArticle] = useState<number | null>(null);
+
+    return (
+        <section className="py-20 bg-gray-50 relative">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="text-center mb-16">
+                    <span className="text-secondary font-bold tracking-wider uppercase text-sm mb-2 block">
+                        {lang === 'ar' ? 'المدونة' : 'Blog'}
+                    </span>
+                    <h2 className="text-3xl md:text-4xl font-bold text-primary-900 mb-4 font-arabic">
+                        {t.articles.title}
+                    </h2>
+                    <div className="w-20 h-1.5 bg-secondary mx-auto rounded-full mb-4"></div>
+                    <p className="text-gray-500 max-w-2xl mx-auto">{t.articles.subtitle}</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {t.articles.items.map((article: ArticleItem) => (
+                        <motion.div 
+                            key={article.id}
+                            layout
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="bg-white rounded-3xl overflow-hidden shadow-md border border-gray-100 hover:shadow-xl transition-all"
+                        >
+                            <div className="p-8">
+                                <div className="flex items-center gap-2 mb-4">
+                                    {article.tags.map((tag, i) => (
+                                        <span key={i} className="text-xs font-bold text-primary-700 bg-primary-50 px-3 py-1 rounded-full">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                    <span className="text-xs text-gray-400 mr-auto">{article.date}</span>
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-900 mb-4 font-arabic leading-tight">
+                                    {article.title}
+                                </h3>
+                                <div className="text-gray-600 leading-relaxed mb-6">
+                                    {expandedArticle === article.id ? (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            className="whitespace-pre-line"
+                                        >
+                                            {article.content}
+                                        </motion.div>
+                                    ) : (
+                                        <p>{article.excerpt}</p>
+                                    )}
+                                </div>
+                                <button 
+                                    onClick={() => setExpandedArticle(expandedArticle === article.id ? null : article.id)}
+                                    className="text-secondary font-bold hover:text-secondary-700 flex items-center gap-2 transition-colors"
+                                >
+                                    {expandedArticle === article.id ? (lang === 'ar' ? 'عرض أقل' : 'Show Less') : t.articles.readMore}
+                                    <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${expandedArticle === article.id ? 'rotate-180' : ''}`} />
+                                </button>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
 const Home = ({ t, lang }: { t: any, lang: Language }) => {
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -109,7 +150,7 @@ const Home = ({ t, lang }: { t: any, lang: Language }) => {
           style={{ y: heroY, opacity: heroOpacity }}
           className="absolute inset-0 z-0"
         >
-          <div className="absolute inset-0 bg-black/40 z-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30 z-10"></div>
           <FadeInImage 
             src={IMAGES.hero}
             alt="Kuwait Garden Landscape"
@@ -123,31 +164,35 @@ const Home = ({ t, lang }: { t: any, lang: Language }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            <motion.span 
+            <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="inline-block py-1 px-3 rounded-full bg-primary-500/30 backdrop-blur-sm border border-primary-400/50 text-sm md:text-base mb-4 font-medium"
+              className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sm md:text-base mb-6 font-medium text-secondary-100"
             >
-              {lang === 'ar' ? 'الخيار الأول في الكويت' : '#1 Choice in Kuwait'}
-            </motion.span>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight drop-shadow-2xl">
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+              <span>{lang === 'ar' ? 'الخيار الأول في الكويت' : '#1 Choice in Kuwait'}</span>
+            </motion.div>
+            
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight drop-shadow-2xl font-arabic">
               {t.hero.title}
             </h1>
+            
             <p className="text-lg md:text-2xl text-gray-100 mb-10 max-w-3xl mx-auto leading-relaxed drop-shadow-lg font-light">
               {t.hero.subtitle}
             </p>
+            
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link
                 to="/contact"
-                className="inline-flex items-center gap-3 bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-full text-lg font-semibold transition-all shadow-lg shadow-primary-900/50 backdrop-blur-sm w-full sm:w-auto justify-center hover:scale-105"
+                className="inline-flex items-center gap-3 bg-primary-600 hover:bg-primary-500 text-white px-8 py-4 rounded-full text-lg font-bold transition-all shadow-lg shadow-primary-900/50 backdrop-blur-sm w-full sm:w-auto justify-center hover:scale-105"
                 >
                 {t.hero.cta}
                 {lang === 'ar' ? <ArrowRight className="rotate-180 w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
                 </Link>
                 <a
-                href="tel:+96569997026"
-                className="inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-primary-700 px-8 py-4 rounded-full text-lg font-semibold transition-all shadow-lg backdrop-blur-sm w-full sm:w-auto justify-center hover:scale-105"
+                href="https://wa.me/96569997026"
+                className="inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-primary-800 px-8 py-4 rounded-full text-lg font-bold transition-all shadow-lg backdrop-blur-sm w-full sm:w-auto justify-center hover:scale-105"
                 >
                 <Phone className="w-5 h-5" />
                 {t.hero.bookCall}
@@ -158,47 +203,106 @@ const Home = ({ t, lang }: { t: any, lang: Language }) => {
       </section>
 
       {/* Intro / Services Preview */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-primary-900 mb-4">{t.services.title}</h2>
-              <p className="text-gray-500">{t.services.subtitle}</p>
+              <span className="text-secondary font-bold tracking-wider uppercase text-sm mb-2 block">{t.nav.services}</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-primary-900 mb-4 font-arabic">{t.services.title}</h2>
+              <div className="w-20 h-1.5 bg-secondary mx-auto rounded-full mb-4"></div>
+              <p className="text-gray-500 max-w-2xl mx-auto">{t.services.subtitle}</p>
             </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                {t.services.items.slice(0, 3).map((service: any) => (
-                 <div key={service.id} className="bg-gray-50 p-8 rounded-2xl hover:shadow-lg transition-all border border-gray-100">
-                    <div className="w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center text-primary-600 mb-6">
-                        {service.icon === 'Sun' && <Sun className="w-8 h-8" />}
-                        {service.icon === 'Sprout' && <Leaf className="w-8 h-8" />}
-                        {service.icon === 'Trees' && <Flower2 className="w-8 h-8" />}
+                 <div key={service.id} className="bg-white p-8 rounded-3xl shadow-lg shadow-gray-100 hover:shadow-2xl transition-all border border-gray-100 group relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-150"></div>
+                    <div className="relative z-10">
+                        <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center text-primary-600 mb-6 group-hover:bg-primary-600 group-hover:text-white transition-colors duration-300">
+                            {service.icon === 'Sun' && <Sun className="w-8 h-8" />}
+                            {service.icon === 'Sprout' && <Leaf className="w-8 h-8" />}
+                            {service.icon === 'Trees' && <Flower2 className="w-8 h-8" />}
+                        </div>
+                        <h3 className="text-xl font-bold mb-3 text-gray-900 font-arabic">{service.title}</h3>
+                        <p className="text-gray-600 leading-relaxed text-sm">{service.description}</p>
                     </div>
-                    <h3 className="text-xl font-bold mb-2 text-gray-900">{service.title}</h3>
-                    <p className="text-gray-600">{service.description}</p>
                  </div>
                ))}
             </div>
+            
             <div className="text-center">
-              <Link to="/services" className="inline-flex items-center gap-2 text-primary-600 font-bold hover:text-primary-700">
-                 {lang === 'ar' ? 'عرض جميع الخدمات' : 'View All Services'}
+              <Link to="/services" className="inline-flex items-center gap-2 text-primary-700 font-bold hover:text-primary-800 border-b-2 border-primary-200 hover:border-primary-700 pb-1 transition-all">
+                 {lang === 'ar' ? 'اكتشف جميع خدماتنا' : 'Discover All Services'}
                  {lang === 'ar' ? <ArrowRight className="rotate-180 w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
               </Link>
             </div>
         </div>
       </section>
+
+      {/* Featured Video Section (Shorts Embed) */}
+      <section className="py-20 bg-gray-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="text-white order-2 lg:order-1">
+              <div className="flex items-center gap-2 text-secondary mb-4">
+                <Video className="w-6 h-6" />
+                <span className="font-bold uppercase tracking-widest">{lang === 'ar' ? 'شاهد على الطبيعة' : 'Watch Live'}</span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold mb-6 font-arabic leading-tight">
+                {lang === 'ar' ? 'جولة في أحد مشاريعنا المميزة' : 'Tour One of Our Featured Projects'}
+              </h2>
+              <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                {lang === 'ar' 
+                  ? 'شاهد كيف نحول المساحات الفارغة إلى حدائق تنبض بالحياة. دقة في التنفيذ، جودة في المواد، واهتمام بأدق التفاصيل.' 
+                  : 'See how we transform empty spaces into vibrant gardens. Precision in execution, quality materials, and attention to the smallest details.'}
+              </p>
+              <a 
+                href="https://www.youtube.com/@JasmineGardens" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full font-bold transition-all"
+              >
+                <Play className="w-5 h-5 fill-current" />
+                {lang === 'ar' ? 'تابعنا على يوتيوب' : 'Subscribe on YouTube'}
+              </a>
+            </div>
+            
+            {/* YouTube Shorts Embed Container */}
+            <div className="order-1 lg:order-2 flex justify-center">
+              <div className="relative w-[300px] md:w-[340px] aspect-[9/16] rounded-3xl overflow-hidden border-8 border-gray-800 shadow-2xl bg-black">
+                <iframe 
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/GUJtLdJmPrs?autoplay=1&mute=1&loop=1&playlist=GUJtLdJmPrs&controls=0&showinfo=0&rel=0" 
+                  title="Jasmine Gardens Project" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                ></iframe>
+                <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] rounded-2xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       
+      {/* Articles & Expertise Section */}
+      <ArticlesSection t={t} lang={lang} />
+
       {/* Call to Action */}
-      <section className="py-16 bg-secondary relative overflow-hidden">
-        <div className="absolute inset-0 bg-secondary-600 mix-blend-multiply opacity-20"></div>
+      <section className="py-20 bg-gradient-to-r from-secondary-600 to-secondary-500 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-10"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t.callAction.title}</h2>
-            <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">{t.callAction.subtitle}</p>
-            <Link
-                to="/contact"
-                className="inline-flex items-center gap-3 bg-white text-secondary font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:bg-gray-50 transition-all hover:scale-105"
-            >
-                <Phone className="w-6 h-6" />
-                {t.callAction.button}
-            </Link>
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 font-arabic">{t.callAction.title}</h2>
+            <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">{t.callAction.subtitle}</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link
+                  to="/contact"
+                  className="inline-flex items-center gap-3 bg-white text-secondary-700 font-bold px-8 py-4 rounded-full text-lg shadow-xl hover:bg-gray-50 transition-all hover:scale-105"
+              >
+                  <Phone className="w-6 h-6" />
+                  {t.callAction.button}
+              </Link>
+            </div>
         </div>
       </section>
     </>
@@ -221,7 +325,7 @@ const ServicesPage = ({ t }: { t: any }) => {
   return (
     <>
       <PageHeader title={t.services.title} subtitle={t.services.subtitle} />
-      <div className="py-20 bg-gray-50">
+      <div className="py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {t.services.items.map((service: any) => (
@@ -230,14 +334,21 @@ const ServicesPage = ({ t }: { t: any }) => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    whileHover={{ y: -12 }}
-                    className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-gray-100 group"
+                    whileHover={{ y: -10 }}
+                    className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-gray-100 group flex flex-col h-full"
                 >
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-primary-100 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                    <div>{getIcon(service.icon)}</div>
+                    <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-primary-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                      <div>{getIcon(service.icon)}</div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">{service.title}</h3>
-                    <p className="text-gray-500 leading-relaxed">{service.description}</p>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-primary-600 transition-colors font-arabic">{service.title}</h3>
+                    <p className="text-gray-500 leading-relaxed text-base flex-grow">{service.description}</p>
+                    <div className="mt-6 pt-6 border-t border-gray-50">
+                       <Link to="/contact" className="text-secondary font-bold hover:text-secondary-600 flex items-center gap-2 text-sm">
+                         {/* Arrow direction handled by flex-row in RTL */}
+                         <span>اطلب الخدمة</span>
+                         <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                       </Link>
+                    </div>
                 </motion.div>
                 ))}
             </div>
@@ -253,28 +364,29 @@ const ProjectsPage = ({ t, lang, onSelectProject }: { t: any, lang: Language, on
       <PageHeader title={t.projects.title} subtitle={t.projects.subtitle} />
       <div className="py-20 bg-white">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {PROJECTS_DATA.map((project) => (
                 <motion.div
                     key={project.id}
                     layoutId={`project-card-${project.id}`}
-                    whileHover={{ scale: 1.03, rotate: 1 }}
-                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-md bg-gray-200"
+                    whileHover={{ scale: 1.02 }}
+                    className="group relative aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer shadow-md bg-gray-100 border border-gray-100"
                     onClick={() => onSelectProject(project)}
                 >
                     <FadeInImage
-                    src={project.imageUrl}
-                    alt={project.title[lang]}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      src={project.imageUrl}
+                      alt={project.title[lang]}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-6">
-                    <span className="text-primary-300 text-sm font-medium mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{project.category}</span>
-                    <h3 className="text-white text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75">
-                        {project.title[lang]}
-                    </h3>
-                    <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all delay-100 hover:bg-white hover:text-primary-600 text-white">
-                        <ZoomIn className="w-5 h-5" />
-                    </div>
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col justify-end p-6">
+                      <span className="text-secondary-400 text-sm font-bold tracking-wider mb-1 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">{project.category}</span>
+                      <h3 className="text-white text-xl font-bold translate-y-4 group-hover:translate-y-0 transition-transform duration-300 delay-75 font-arabic">
+                          {project.title[lang]}
+                      </h3>
+                      <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all delay-100 hover:bg-white hover:text-primary-600 text-white shadow-lg">
+                          <ZoomIn className="w-5 h-5" />
+                      </div>
                     </div>
                 </motion.div>
                 ))}
@@ -291,12 +403,12 @@ const AboutPage = ({ t, lang }: { t: any, lang: Language }) => (
     <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="relative">
-              <div className="absolute -inset-4 bg-secondary/10 rounded-3xl rotate-3"></div>
+            <div className="relative order-2 lg:order-1">
+              <div className="absolute -inset-4 bg-secondary/10 rounded-[2rem] rotate-3"></div>
               <FadeInImage 
                 src={IMAGES.about} 
                 alt="About Jasmine Gardens" 
-                className="relative rounded-3xl shadow-2xl w-full h-[400px] lg:h-[500px] object-cover"
+                className="relative rounded-[2rem] shadow-2xl w-full h-[400px] lg:h-[500px] object-cover"
               />
               <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-2xl border-t-4 border-primary-500 max-w-xs z-20 hidden md:block">
                   <div className="flex items-center gap-4">
@@ -304,8 +416,8 @@ const AboutPage = ({ t, lang }: { t: any, lang: Language }) => (
                       <Star className="w-8 h-8 fill-current" />
                     </div>
                     <div>
-                      <p className="text-4xl font-bold text-gray-900 flex items-center gap-1">
-                        <AnimatedCounter value={10} />+
+                      <p className="text-4xl font-bold text-gray-900 flex items-center gap-1 font-sans">
+                        <AnimatedCounter value={12} />+
                       </p>
                       <p className="text-gray-500 text-sm font-medium uppercase tracking-wider">{t.about.stats_exp}</p>
                     </div>
@@ -313,30 +425,32 @@ const AboutPage = ({ t, lang }: { t: any, lang: Language }) => (
               </div>
             </div>
             
-            <div>
-              <p className="text-gray-600 text-lg leading-relaxed mb-8">
+            <div className="order-1 lg:order-2">
+              <span className="text-secondary font-bold tracking-wider uppercase mb-2 block">{t.nav.about}</span>
+              <h2 className="text-3xl font-bold text-primary-900 mb-6 font-arabic">{t.about.title}</h2>
+              <p className="text-gray-600 text-lg leading-relaxed mb-8 text-justify">
                 {t.about.desc}
               </p>
               
               <div className="grid grid-cols-2 gap-6 mb-8">
-                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm hover:bg-white hover:shadow-md transition-all">
-                  <h4 className="text-4xl font-bold text-primary-600 mb-2 flex items-center gap-1">
-                    <AnimatedCounter value={500} />+
+                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm text-center">
+                  <h4 className="text-4xl font-bold text-primary-600 mb-2 flex items-center justify-center gap-1 font-sans">
+                    <AnimatedCounter value={350} />+
                   </h4>
-                  <p className="text-gray-600 font-medium">{t.about.stats_projects}</p>
+                  <p className="text-gray-600 font-medium text-sm">{t.about.stats_projects}</p>
                 </div>
-                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm hover:bg-white hover:shadow-md transition-all">
-                  <h4 className="text-4xl font-bold text-primary-600 mb-2 flex items-center gap-1">
-                    <AnimatedCounter value={100} />%
+                <div className="p-6 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm text-center">
+                  <h4 className="text-4xl font-bold text-primary-600 mb-2 flex items-center justify-center gap-1 font-sans">
+                    <AnimatedCounter value={98} />%
                   </h4>
-                  <p className="text-gray-600 font-medium">{t.about.stats_clients}</p>
+                  <p className="text-gray-600 font-medium text-sm">{t.about.stats_clients}</p>
                 </div>
               </div>
 
               <ul className="space-y-4 mb-8">
-                {['تصاميم حصرية وعصرية', 'فريق عمل محترف', 'ضمان على التنفيذ', 'أسعار تنافسية'].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
-                      <div className="bg-primary-100 p-1 rounded-full">
+                {['تصاميم حصرية وعصرية', 'فريق عمل محترف', 'ضمان حقيقي على التنفيذ', 'أسعار تنافسية ومدروسة'].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-gray-700 font-bold">
+                      <div className="bg-primary-100 p-1.5 rounded-full">
                         <CheckCircle className="w-5 h-5 text-primary-600" />
                       </div>
                       <span>{lang === 'ar' ? item : 'Professional Service Point'}</span>
@@ -362,24 +476,26 @@ const TestimonialsPage = ({ t, lang }: { t: any, lang: Language }) => (
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative hover:shadow-xl transition-shadow"
+                className="bg-white p-8 rounded-2xl shadow-lg border border-gray-100 relative hover:shadow-xl transition-shadow flex flex-col"
               >
-                <Quote className="absolute top-8 right-8 text-primary-100 w-10 h-10" />
-                <div className="flex gap-1 mb-4">
+                <div className="absolute top-6 left-6 text-primary-100">
+                    <Quote className="w-12 h-12 transform scale-x-[-1]" />
+                </div>
+                <div className="flex gap-1 mb-6 relative z-10">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    <Star key={i} className="w-4 h-4 text-yellow-400 fill-current" />
                   ))}
                 </div>
-                <p className="text-gray-600 mb-6 leading-relaxed italic">
+                <p className="text-gray-600 mb-8 leading-relaxed italic relative z-10 flex-grow">
                   "{testimonial.content[lang]}"
                 </p>
-                <div className="border-t border-gray-100 pt-4 flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-bold">
+                <div className="border-t border-gray-100 pt-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center text-primary-700 font-bold text-lg shadow-inner">
                       {testimonial.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-bold text-gray-900 text-sm">{testimonial.name}</h4>
-                    <p className="text-xs text-primary-600">{testimonial.role[lang]}</p>
+                    <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
+                    <p className="text-xs text-primary-600 font-medium mt-0.5">{testimonial.role[lang]}</p>
                   </div>
                 </div>
               </motion.div>
@@ -390,50 +506,68 @@ const TestimonialsPage = ({ t, lang }: { t: any, lang: Language }) => (
     </>
 );
 
-const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, errors, isSubmitting, submitSuccess }: any) => (
+const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, errors, isSubmitting, submitSuccess, handleWhatsAppSubmit }: any) => (
   <>
     <PageHeader title={t.contact} subtitle={t.callAction.subtitle} />
     <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-            <div>
-              <h2 className="text-3xl font-bold mb-6 text-primary-900">{t.hero.cta}</h2>
-              <p className="text-gray-600 text-lg mb-8 max-w-lg">
-                {lang === 'ar' 
-                  ? 'جاهز لتحويل حديقتك؟ تواصل معنا اليوم للحصول على استشارة مجانية وعرض سعر مخصص لمشروعك.' 
-                  : 'Ready to transform your garden? Contact us today for a free consultation and a custom quote for your project.'}
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div className="space-y-10">
+              <div>
+                <h2 className="text-3xl font-bold mb-4 text-primary-900 font-arabic">{t.hero.cta}</h2>
+                <p className="text-gray-600 text-lg max-w-lg">
+                  {lang === 'ar' 
+                    ? 'جاهز لتحويل حديقتك؟ تواصل معنا اليوم للحصول على استشارة مجانية وعرض سعر مخصص لمشروعك.' 
+                    : 'Ready to transform your garden? Contact us today for a free consultation and a custom quote for your project.'}
+                </p>
+              </div>
+
               <div className="space-y-6">
-                <a href="tel:+96569997026" className="flex items-center gap-4 group">
-                  <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform shadow-md">
-                    <Phone className="w-6 h-6" />
+                <a href="tel:+96569997026" className="flex items-center gap-6 group p-4 rounded-2xl hover:bg-gray-50 transition-colors">
+                  <div className="w-16 h-16 bg-white border border-gray-100 text-primary-600 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform shadow-md">
+                    <Phone className="w-7 h-7" />
                   </div>
-                  <span className="text-xl font-semibold dir-ltr text-gray-800">+965 6999 7026</span>
+                  <div>
+                    <span className="block text-sm text-gray-500 mb-1">{lang === 'ar' ? 'اتصل بنا' : 'Call Us'}</span>
+                    <span className="text-2xl font-bold dir-ltr text-gray-900 font-sans">+965 6999 7026</span>
+                  </div>
                 </a>
-                <a href="mailto:info@jasminegardens.com" className="flex items-center gap-4 group">
-                  <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform shadow-md">
-                    <Mail className="w-6 h-6" />
+
+                <a href="mailto:info@jasminegardens.com" className="flex items-center gap-6 group p-4 rounded-2xl hover:bg-gray-50 transition-colors">
+                  <div className="w-16 h-16 bg-white border border-gray-100 text-primary-600 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform shadow-md">
+                    <Mail className="w-7 h-7" />
                   </div>
-                  <span className="text-xl font-semibold text-gray-800">info@jasminegardens.com</span>
+                  <div>
+                    <span className="block text-sm text-gray-500 mb-1">{lang === 'ar' ? 'البريد الإلكتروني' : 'Email Us'}</span>
+                    <span className="text-lg font-bold text-gray-900 font-sans">info@jasminegardens.com</span>
+                  </div>
                 </a>
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center">
-                    <MapPin className="w-6 h-6" />
+
+                <div className="flex items-center gap-6 p-4">
+                  <div className="w-16 h-16 bg-white border border-gray-100 text-primary-600 rounded-2xl flex items-center justify-center shadow-md">
+                    <MapPin className="w-7 h-7" />
                   </div>
-                  <span className="text-xl font-semibold text-gray-800">
-                    {lang === 'ar' ? 'الكويت، جميع المناطق' : 'Kuwait, All Areas'}
-                  </span>
+                  <div>
+                    <span className="block text-sm text-gray-500 mb-1">{lang === 'ar' ? 'موقعنا' : 'Location'}</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      {lang === 'ar' ? 'دولة الكويت، جميع المناطق' : 'Kuwait State, All Areas'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gray-50 p-8 rounded-2xl shadow-lg border border-gray-100">
-                <form className="space-y-4" onSubmit={handleSubmit} noValidate>
+            <div className="bg-white p-8 md:p-10 rounded-3xl shadow-2xl border border-gray-100 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-full h-2 bg-gradient-to-r from-primary-500 to-secondary"></div>
+                
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">{lang === 'ar' ? 'نموذج طلب عرض سعر' : 'Request a Quote'}</h3>
+                
+                <form className="space-y-5" onSubmit={handleSubmit} noValidate>
                   {submitSuccess && (
                   <motion.div 
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2"
+                      className="bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2"
                   >
                       <CheckCircle className="w-5 h-5" />
                       {lang === 'ar' ? 'تم استلام طلبك بنجاح! سنتواصل معك قريباً.' : 'Request received successfully! We will contact you soon.'}
@@ -441,7 +575,7 @@ const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, error
                   )}
 
                   <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                       {lang === 'ar' ? 'الاسم الكامل' : 'Full Name'}
                   </label>
                   <input 
@@ -449,13 +583,14 @@ const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, error
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 rounded-lg border ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary-500'} focus:ring-2 focus:border-transparent outline-none transition-all bg-white`} 
+                      className={`w-full px-5 py-3.5 rounded-xl border ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary-100 focus:border-primary-500'} focus:ring-4 outline-none transition-all bg-gray-50 focus:bg-white`} 
+                      placeholder={lang === 'ar' ? 'ادخل اسمك هنا' : 'Enter your name'}
                   />
-                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  {errors.name && <p className="text-red-500 text-xs mt-1 font-bold">{errors.name}</p>}
                   </div>
 
                   <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
                       {lang === 'ar' ? 'رقم الهاتف' : 'Phone Number'}
                   </label>
                   <input 
@@ -463,36 +598,22 @@ const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, error
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-3 rounded-lg border ${errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary-500'} focus:ring-2 focus:border-transparent outline-none transition-all bg-white`} 
+                      className={`w-full px-5 py-3.5 rounded-xl border ${errors.phone ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary-100 focus:border-primary-500'} focus:ring-4 outline-none transition-all bg-gray-50 focus:bg-white`} 
                       dir="ltr" 
+                      placeholder="+965"
                   />
-                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                  {errors.phone && <p className="text-red-500 text-xs mt-1 font-bold">{errors.phone}</p>}
                   </div>
 
                   <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {lang === 'ar' ? 'البريد الإلكتروني' : 'Email Address'}
-                  </label>
-                  <input 
-                      type="email" 
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className={`w-full px-4 py-3 rounded-lg border ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-primary-500'} focus:ring-2 focus:border-transparent outline-none transition-all bg-white`} 
-                      dir="ltr" 
-                  />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-                  </div>
-
-                  <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {lang === 'ar' ? 'نوع الخدمة' : 'Service Type'}
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {lang === 'ar' ? 'نوع الخدمة المطلوبة' : 'Service Type'}
                   </label>
                   <select 
                       name="service"
                       value={formData.service}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all bg-white"
+                      className="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:ring-4 focus:ring-primary-100 focus:border-primary-500 outline-none transition-all bg-gray-50 focus:bg-white cursor-pointer"
                   >
                       {t.services.items.map((item: any) => (
                       <option key={item.id} value={item.title}>{item.title}</option>
@@ -500,19 +621,32 @@ const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, error
                   </select>
                   </div>
 
-                  <button 
-                      disabled={isSubmitting}
-                      className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-bold py-4 rounded-lg shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex justify-center items-center gap-2"
-                  >
-                      {isSubmitting ? (
-                          <>
-                              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                              {lang === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
-                          </>
-                      ) : (
-                          lang === 'ar' ? 'إرسال الطلب' : 'Send Request'
-                      )}
-                  </button>
+                  <div className="flex flex-col gap-3">
+                    <button 
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-bold py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex justify-center items-center gap-2 text-lg"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                {lang === 'ar' ? 'جاري الإرسال...' : 'Sending...'}
+                            </>
+                        ) : (
+                            lang === 'ar' ? 'إرسال الطلب الآن' : 'Send Request Now'
+                        )}
+                    </button>
+                    
+                    {/* Direct WhatsApp Send Button */}
+                    <button 
+                        type="button"
+                        onClick={handleWhatsAppSubmit}
+                        className="w-full bg-[#25D366] hover:bg-[#20b858] text-white font-bold py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-1 active:scale-95 flex justify-center items-center gap-2 text-lg"
+                    >
+                        <Send className="w-5 h-5 rtl:-scale-x-100" />
+                        {t.callAction.whatsappButton}
+                    </button>
+                  </div>
               </form>
             </div>
           </div>
@@ -521,16 +655,23 @@ const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, error
   </>
 );
 
-// --- Main App Component ---
-
 function App() {
-  const [lang, setLang] = useState<Language>('ar');
+  // Language with Persistence
+  const [lang, setLang] = useState<Language>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('jasmine_lang');
+      return (saved === 'ar' || saved === 'en') ? saved : 'ar';
+    }
+    return 'ar';
+  });
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [legalModalOpen, setLegalModalOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [user, setUser] = useState<string | null>(null);
   const [modalType, setModalType] = useState<'privacy' | 'terms'>('privacy');
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
   // Form State
@@ -554,7 +695,18 @@ function App() {
     document.title = lang === 'ar' 
       ? 'حدائق الياسمين | تصميم وتنسيق حدائق في الكويت' 
       : 'Jasmine Gardens | Landscape Design in Kuwait';
+    
+    localStorage.setItem('jasmine_lang', lang);
   }, [lang, dir]);
+
+  // Scroll Listener for Sticky Header
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Reset service when language changes
   useEffect(() => {
@@ -589,32 +741,24 @@ function App() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitSuccess(false);
-    
+  const validateForm = () => {
     const newErrors: typeof errors = {};
-    
-    if (!formData.name.trim()) {
-      newErrors.name = lang === 'ar' ? 'الاسم مطلوب' : 'Name is required';
-    } else if (formData.name.length < 3) {
-      newErrors.name = lang === 'ar' ? 'الاسم يجب أن يكون ٣ أحرف على الأقل' : 'Name must be at least 3 characters';
-    }
-
+    if (!formData.name.trim()) newErrors.name = lang === 'ar' ? 'الاسم مطلوب' : 'Name is required';
     const phoneRegex = /^[0-9+\s-]{8,}$/;
     if (!formData.phone.trim()) {
       newErrors.phone = lang === 'ar' ? 'رقم الهاتف مطلوب' : 'Phone number is required';
     } else if (!phoneRegex.test(formData.phone)) {
        newErrors.phone = lang === 'ar' ? 'رقم الهاتف غير صحيح (٨ أرقام على الأقل)' : 'Invalid phone number (min 8 digits)';
     }
+    return newErrors;
+  };
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-       newErrors.email = lang === 'ar' ? 'البريد الإلكتروني مطلوب' : 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
-       newErrors.email = lang === 'ar' ? 'البريد الإلكتروني غير صحيح' : 'Invalid email format';
-    }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitSuccess(false);
+    
+    const newErrors = validateForm();
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -629,6 +773,21 @@ function App() {
       setErrors({});
       setTimeout(() => setSubmitSuccess(false), 5000);
     }, 1500);
+  };
+
+  // Direct WhatsApp Send Logic
+  const handleWhatsAppSubmit = () => {
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+    }
+
+    const message = lang === 'ar' 
+        ? `مرحباً حدائق الياسمين،%0aاسمي: ${formData.name}%0aرقم الهاتف: ${formData.phone}%0aأرغب في خدمة: ${formData.service}`
+        : `Hello Jasmine Gardens,%0aName: ${formData.name}%0aPhone: ${formData.phone}%0aI am interested in: ${formData.service}`;
+    
+    window.open(`https://wa.me/96569997026?text=${message}`, '_blank');
   };
 
   const navLinks = [
@@ -646,73 +805,86 @@ function App() {
     <div className={`min-h-screen bg-white relative ${lang === 'ar' ? 'font-arabic' : 'font-sans'}`}>
       <ScrollToTop />
       
-      {/* Animated Background */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-primary-50/50 to-white"></div>
-          <motion.div 
-            animate={{ y: [0, -20, 0], x: [0, 10, 0], opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-primary-100/40 to-transparent rounded-full blur-3xl"
-          />
-          <motion.div 
-            animate={{ y: [0, 30, 0], x: [0, -20, 0], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-secondary/10 to-transparent rounded-full blur-3xl"
-          />
-      </div>
-
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isMenuOpen || (typeof window !== 'undefined' && window.scrollY > 50) ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'}`}>
+      {/* Navigation - Luxury Sticky Header */}
+      <nav 
+        className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ease-in-out border-b ${
+          scrolled 
+            ? 'bg-white/90 backdrop-blur-lg shadow-lg border-gray-100 py-3' 
+            : 'bg-transparent border-transparent py-6'
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Flex Container: In RTL, item 1 is Right, item 2 is Left. 
+              User asked for Logo Left and Nav Right.
+              So in RTL: Nav should be first child (Right), Logo should be second child (Left).
+          */}
           <div className="flex justify-between items-center">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group z-50">
-               <Logo className="w-10 h-10 md:w-12 md:h-12 group-hover:rotate-12 transition-transform duration-500" />
-               <div className="flex flex-col">
-                 <span className={`text-xl md:text-2xl font-bold leading-none ${isMenuOpen || (typeof window !== 'undefined' && window.scrollY > 50) ? 'text-primary-800' : 'text-primary-800 lg:text-white'}`}>
+            
+            {/* Desktop Nav - On Right in RTL (Start) */}
+            <div className="hidden lg:flex items-center gap-1">
+               <div className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-all duration-300 ${scrolled ? 'bg-gray-100/80' : 'bg-black/20 backdrop-blur-sm border border-white/10'}`}>
+                {navLinks.map((link) => (
+                    <Link 
+                    key={link.key}
+                    to={link.path}
+                    className={`px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 ${
+                        isActive(link.path)
+                        ? 'bg-primary-600 text-white shadow-md scale-105'
+                        : scrolled
+                            ? 'text-gray-600 hover:text-primary-600 hover:bg-white'
+                            : 'text-white hover:bg-white/20'
+                    }`}
+                    >
+                    {t.nav[link.key as keyof typeof t.nav]}
+                    </Link>
+                ))}
+               </div>
+
+               <div className={`w-px h-8 mx-4 transition-colors ${scrolled ? 'bg-gray-300' : 'bg-white/20'}`}></div>
+               
+               {/* Language Toggle */}
+               <button 
+                 onClick={toggleLang} 
+                 className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold overflow-hidden group border transition-all ${
+                   scrolled 
+                     ? 'bg-gray-50 text-primary-800 border-gray-200 hover:border-primary-500' 
+                     : 'bg-black/20 text-white border-white/20 hover:bg-black/30'
+                 }`}
+               >
+                 <div className={`absolute inset-0 bg-primary-600/10 transform transition-transform duration-300 ${lang === 'ar' ? 'translate-x-full' : '-translate-x-full'}`}></div>
+                 <Globe className={`w-4 h-4 transition-transform duration-500 ${lang === 'ar' ? 'rotate-0' : 'rotate-180'}`} />
+                 <span className="relative z-10">{t.nav.lang}</span>
+               </button>
+            </div>
+
+            {/* Mobile Menu Button - On Right in RTL (Start) */}
+            <div className="lg:hidden flex items-center gap-4">
+                <button 
+                className={`p-2 rounded-full z-50 transition-colors ${scrolled ? 'bg-gray-100 text-primary-800' : 'bg-black/20 text-white backdrop-blur-md border border-white/10'}`}
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+                <span className={`font-bold text-lg ${scrolled ? 'text-primary-800' : 'text-white'} lg:hidden`}>
+                    {lang === 'ar' ? 'القائمة' : 'Menu'}
+                </span>
+            </div>
+
+            {/* Logo - On Left in RTL (End) */}
+            <Link to="/" className="flex items-center gap-3 group z-50">
+               <div className="flex flex-col items-end">
+                 <span className={`text-xl md:text-2xl font-bold leading-none transition-colors duration-300 ${scrolled || isMenuOpen ? 'text-primary-800' : 'text-white'}`}>
                    {lang === 'ar' ? 'حدائق الياسمين' : 'Jasmine Gardens'}
                  </span>
-                 <span className={`text-[10px] md:text-xs tracking-widest uppercase ${isMenuOpen || (typeof window !== 'undefined' && window.scrollY > 50) ? 'text-secondary' : 'text-secondary lg:text-primary-200'}`}>
+                 <span className={`text-[10px] md:text-xs tracking-[0.2em] uppercase font-sans mt-1 transition-colors duration-300 ${scrolled || isMenuOpen ? 'text-secondary' : 'text-primary-100'}`}>
                    Landscape Design
                  </span>
                </div>
+               <div className={`p-1 rounded-xl transition-all duration-300 ${scrolled ? 'bg-white/50' : 'bg-white/10 backdrop-blur-sm'}`}>
+                 <Logo className="w-10 h-10 md:w-12 md:h-12 group-hover:rotate-6 transition-transform duration-500" />
+               </div>
             </Link>
 
-            {/* Desktop Nav */}
-            <div className="hidden lg:flex items-center gap-1 bg-white/80 backdrop-blur-sm p-1.5 rounded-full border border-white/20 shadow-sm">
-               {navLinks.map((link) => (
-                 <NavButton 
-                   key={link.key} 
-                   to={link.path} 
-                   label={t.nav[link.key as keyof typeof t.nav]} 
-                   isActive={isActive(link.path)} 
-                 />
-               ))}
-               <div className="w-px h-6 bg-gray-300 mx-2"></div>
-               <button onClick={toggleLang} className="px-4 py-2 text-sm font-bold text-primary-700 hover:bg-primary-50 rounded-full transition-colors flex items-center gap-1">
-                 <Globe className="w-4 h-4" />
-                 {t.nav.lang}
-               </button>
-               {user ? (
-                 <button onClick={handleLogout} className="px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-full transition-colors flex items-center gap-1">
-                   <LogOut className="w-4 h-4" />
-                   {t.nav.logout}
-                 </button>
-               ) : (
-                 <button onClick={() => setLoginModalOpen(true)} className="px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-full transition-colors flex items-center gap-1">
-                   <User className="w-4 h-4" />
-                   {t.nav.login}
-                 </button>
-               )}
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button 
-              className="lg:hidden p-2 rounded-full bg-white/20 backdrop-blur-md text-primary-800 z-50"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
           </div>
         </div>
 
@@ -723,34 +895,37 @@ function App() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: '100vh' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden fixed inset-0 bg-white z-40 pt-24 px-6 overflow-y-auto"
+              className="lg:hidden fixed inset-0 bg-white z-[90] pt-28 px-6 overflow-y-auto"
             >
-              <div className="flex flex-col gap-4 text-center">
+              <div className="flex flex-col gap-2 text-center">
                 {navLinks.map((link) => (
                   <Link 
                     key={link.key} 
                     to={link.path} 
                     onClick={() => setIsMenuOpen(false)}
-                    className={`text-2xl font-bold py-3 border-b border-gray-100 ${isActive(link.path) ? 'text-primary-600' : 'text-gray-800'}`}
+                    className={`text-xl font-bold py-4 border-b border-gray-50 ${isActive(link.path) ? 'text-primary-600' : 'text-gray-700'}`}
                   >
                     {t.nav[link.key as keyof typeof t.nav]}
                   </Link>
                 ))}
-                <button onClick={toggleLang} className="text-xl font-bold text-primary-600 py-3 flex items-center justify-center gap-2">
-                  <Globe className="w-5 h-5" />
-                  {t.nav.lang}
-                </button>
-                 {user ? (
-                   <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="text-xl font-bold text-red-600 py-3 flex items-center justify-center gap-2">
-                     <LogOut className="w-5 h-5" />
-                     {t.nav.logout}
-                   </button>
-                 ) : (
-                   <button onClick={() => { setLoginModalOpen(true); setIsMenuOpen(false); }} className="text-xl font-bold text-gray-600 py-3 flex items-center justify-center gap-2">
-                     <User className="w-5 h-5" />
-                     {t.nav.login}
-                   </button>
-                 )}
+                
+                <div className="mt-8 flex flex-col gap-4">
+                    <button onClick={toggleLang} className="w-full bg-gray-50 text-gray-800 font-bold py-4 rounded-xl flex items-center justify-center gap-2">
+                    <Globe className="w-5 h-5" />
+                    {t.nav.lang}
+                    </button>
+                    {user ? (
+                    <button onClick={() => { handleLogout(); setIsMenuOpen(false); }} className="w-full bg-red-50 text-red-600 font-bold py-4 rounded-xl flex items-center justify-center gap-2">
+                        <LogOut className="w-5 h-5" />
+                        {t.nav.logout}
+                    </button>
+                    ) : (
+                    <button onClick={() => { setLoginModalOpen(true); setIsMenuOpen(false); }} className="w-full bg-primary-50 text-primary-700 font-bold py-4 rounded-xl flex items-center justify-center gap-2">
+                        <User className="w-5 h-5" />
+                        {t.nav.login}
+                    </button>
+                    )}
+                </div>
               </div>
             </motion.div>
           )}
@@ -775,59 +950,60 @@ function App() {
                errors={errors} 
                isSubmitting={isSubmitting} 
                submitSuccess={submitSuccess} 
+               handleWhatsAppSubmit={handleWhatsAppSubmit}
             />
           } />
         </Routes>
       </main>
 
       {/* Footer */}
-      <footer className="bg-primary-900 text-white pt-16 pb-8 relative z-10">
+      <footer className="bg-primary-900 text-white pt-20 pb-8 relative z-10 border-t border-primary-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
              <div className="col-span-1 md:col-span-2">
                <div className="flex items-center gap-3 mb-6">
-                 <Logo className="w-10 h-10" />
-                 <h3 className="text-2xl font-bold">{lang === 'ar' ? 'حدائق الياسمين' : 'Jasmine Gardens'}</h3>
+                 <Logo className="w-12 h-12" />
+                 <h3 className="text-2xl font-bold font-arabic">{lang === 'ar' ? 'حدائق الياسمين' : 'Jasmine Gardens'}</h3>
                </div>
-               <p className="text-primary-200 leading-relaxed max-w-sm mb-6">
+               <p className="text-primary-200 leading-relaxed max-w-sm mb-8">
                  {t.hero.subtitle}
                </p>
                <div className="flex gap-4">
-                 <a href="#" className="p-2 bg-primary-800 rounded-full hover:bg-primary-700 transition-colors"><Phone className="w-5 h-5" /></a>
-                 <a href="#" className="p-2 bg-primary-800 rounded-full hover:bg-primary-700 transition-colors"><Mail className="w-5 h-5" /></a>
-                 <a href="#" className="p-2 bg-primary-800 rounded-full hover:bg-primary-700 transition-colors"><Globe className="w-5 h-5" /></a>
+                 <a href="tel:+96569997026" className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors"><Phone className="w-5 h-5" /></a>
+                 <a href="mailto:info@jasminegardens.com" className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors"><Mail className="w-5 h-5" /></a>
+                 <a href="#" className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full hover:bg-white/20 transition-colors"><Globe className="w-5 h-5" /></a>
                </div>
              </div>
              
              <div>
                <h4 className="text-lg font-bold mb-6 text-secondary">{t.nav.services}</h4>
-               <ul className="space-y-3">
+               <ul className="space-y-4 text-sm font-medium">
                  {t.services.items.slice(0, 4).map((item: any) => (
-                   <li key={item.id}><Link to="/services" className="text-primary-200 hover:text-white transition-colors">{item.title}</Link></li>
+                   <li key={item.id}><Link to="/services" className="text-primary-200 hover:text-white transition-colors flex items-center gap-2"><div className="w-1 h-1 bg-secondary rounded-full"></div>{item.title}</Link></li>
                  ))}
                </ul>
              </div>
 
              <div>
                <h4 className="text-lg font-bold mb-6 text-secondary">{t.footer.contactUs}</h4>
-               <ul className="space-y-4">
+               <ul className="space-y-4 text-sm font-medium">
                  <li className="flex items-start gap-3 text-primary-200">
-                    <MapPin className="w-5 h-5 shrink-0 mt-1" />
+                    <MapPin className="w-5 h-5 shrink-0 text-secondary" />
                     <span>{lang === 'ar' ? 'الكويت، جميع المناطق' : 'Kuwait, All Areas'}</span>
                  </li>
                  <li className="flex items-center gap-3 text-primary-200">
-                    <Phone className="w-5 h-5 shrink-0" />
+                    <Phone className="w-5 h-5 shrink-0 text-secondary" />
                     <span dir="ltr">+965 6999 7026</span>
                  </li>
                  <li className="flex items-center gap-3 text-primary-200">
-                    <Mail className="w-5 h-5 shrink-0" />
+                    <Mail className="w-5 h-5 shrink-0 text-secondary" />
                     <span>info@jasminegardens.com</span>
                  </li>
                </ul>
              </div>
            </div>
            
-           <div className="border-t border-primary-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-primary-300">
+           <div className="border-t border-primary-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-primary-400">
              <p>{t.footer.rights}</p>
              <div className="flex gap-6">
                <button onClick={() => openLegal('privacy')} className="hover:text-white transition-colors">{t.footer.privacy}</button>
@@ -856,33 +1032,40 @@ function App() {
         dir={dir}
       />
       
-      {/* Project Detail Modal (Simple Image Viewer) */}
+      {/* Project Detail Modal (Full Screen Viewer) */}
       <AnimatePresence>
         {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-black/90 p-4 backdrop-blur-xl"
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 p-4 md:p-8 backdrop-blur-md"
             onClick={() => setSelectedProject(null)}
           >
+            <button 
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-4 right-4 md:top-8 md:right-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-50"
+            >
+                <X className="w-8 h-8" />
+            </button>
+
             <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="relative max-w-5xl w-full max-h-[90vh] rounded-xl overflow-hidden"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-6xl w-full h-full max-h-[85vh] flex flex-col items-center justify-center"
               onClick={e => e.stopPropagation()}
             >
-              <img src={selectedProject.imageUrl} alt={selectedProject.title[lang]} className="w-full h-full object-contain" />
-              <button 
-                onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-all"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-8 text-white">
-                <span className="text-secondary font-medium mb-1 block">{selectedProject.category}</span>
-                <h3 className="text-2xl font-bold">{selectedProject.title[lang]}</h3>
+              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
+                 <img 
+                    src={selectedProject.imageUrl} 
+                    alt={selectedProject.title[lang]} 
+                    className="w-full h-full object-contain bg-black" 
+                 />
+              </div>
+              <div className="mt-6 text-center">
+                <span className="text-secondary font-bold tracking-wider mb-2 block text-sm uppercase">{selectedProject.category}</span>
+                <h3 className="text-3xl font-bold text-white font-arabic">{selectedProject.title[lang]}</h3>
               </div>
             </motion.div>
           </motion.div>

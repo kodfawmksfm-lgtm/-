@@ -39,10 +39,17 @@ export interface Translation {
     title: string;
     subtitle: string;
   };
+  articles: {
+    title: string;
+    subtitle: string;
+    readMore: string;
+    items: ArticleItem[];
+  };
   callAction: {
     title: string;
     subtitle: string;
     button: string;
+    whatsappButton: string;
   };
   footer: {
     rights: string;
@@ -70,6 +77,15 @@ export interface ServiceItem {
   title: string;
   description: string;
   icon: string;
+}
+
+export interface ArticleItem {
+  id: number;
+  title: string;
+  excerpt: string;
+  content: string;
+  tags: string[];
+  date: string;
 }
 
 export interface ProjectItem {
