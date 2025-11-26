@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Lock } from 'lucide-react';
+import { X, User, Lock, Briefcase, CreditCard } from 'lucide-react';
 import { Translation } from '../types';
 
 interface LoginModalProps {
@@ -15,13 +14,12 @@ interface LoginModalProps {
 const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, t, dir }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [mode, setMode] = useState<'staff' | 'customer'>('customer'); // Default to Customer
 
   useEffect(() => {
     if (isOpen) {
       const savedUser = localStorage.getItem('jasmine_username');
-      const savedPass = localStorage.getItem('jasmine_password');
       if (savedUser) setUsername(savedUser);
-      if (savedPass) setPassword(savedPass);
     }
   }, [isOpen]);
 
@@ -29,7 +27,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, t, di
     e.preventDefault();
     if (username && password) {
       localStorage.setItem('jasmine_username', username);
-      localStorage.setItem('jasmine_password', password);
       onLogin(username);
       onClose();
     }
@@ -59,13 +56,33 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, t, di
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Toggle Switch */}
+            <div className="flex p-4 bg-gray-50 border-b border-gray-100">
+                <button 
+                    onClick={() => setMode('customer')}
+                    className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${mode === 'customer' ? 'bg-white text-secondary shadow-md' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                    <User className="w-4 h-4" />
+                    {dir === 'rtl' ? 'دخول العملاء' : 'Customer'}
+                </button>
+                <button 
+                    onClick={() => setMode('staff')}
+                    className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${mode === 'staff' ? 'bg-white text-primary-600 shadow-md' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                    <Briefcase className="w-4 h-4" />
+                    {dir === 'rtl' ? 'دخول الموظفين' : 'Staff'}
+                </button>
+            </div>
             
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t.username}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {mode === 'customer' ? (dir === 'rtl' ? 'رقم الملف / الهاتف' : 'File No / Phone') : t.username}
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-gray-400">
-                    <User className="w-5 h-5" />
+                    {mode === 'customer' ? <CreditCard className="w-5 h-5" /> : <User className="w-5 h-5" />}
                   </div>
                   <input
                     type="text"
@@ -73,6 +90,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, t, di
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full ps-10 pe-4 py-2.5 rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
                     required
+                    placeholder={mode === 'customer' ? '123456' : 'admin'}
                   />
                 </div>
               </div>
@@ -95,7 +113,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onLogin, t, di
 
               <button
                 type="submit"
-                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all transform hover:-translate-y-0.5 active:scale-95 mt-4"
+                className={`w-full text-white font-bold py-3 rounded-lg shadow-lg transition-all transform hover:-translate-y-0.5 active:scale-95 mt-4 ${mode === 'customer' ? 'bg-secondary hover:bg-amber-700' : 'bg-primary-600 hover:bg-primary-700'}`}
               >
                 {t.submit}
               </button>

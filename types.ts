@@ -25,6 +25,16 @@ export interface Translation {
     stats_projects: string;
     stats_exp: string;
   };
+  timeline: {
+    title: string;
+    subtitle: string;
+    steps: {
+      step1: { title: string; desc: string };
+      step2: { title: string; desc: string };
+      step3: { title: string; desc: string };
+      step4: { title: string; desc: string };
+    };
+  };
   services: {
     title: string;
     subtitle: string;
@@ -34,6 +44,12 @@ export interface Translation {
     title: string;
     subtitle: string;
     viewMore: string;
+    details: {
+      location: string;
+      duration: string;
+      year: string;
+      scope: string;
+    };
   };
   testimonials: {
     title: string;
@@ -77,6 +93,8 @@ export interface ServiceItem {
   title: string;
   description: string;
   icon: string;
+  longDescription?: string;
+  features?: string[];
 }
 
 export interface ArticleItem {
@@ -95,6 +113,12 @@ export interface ProjectItem {
   title: {
     en: string;
     ar: string;
+  };
+  details?: {
+    location: { ar: string; en: string };
+    duration: { ar: string; en: string };
+    year: string;
+    scope: { ar: string; en: string };
   };
 }
 

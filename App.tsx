@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe, Phone, Mail, MapPin, Sun, Leaf, Flower2, Umbrella, Star, CheckCircle, ZoomIn, Quote, ArrowRight, User, LogOut, Play, Video, Send, FileText, ChevronDown } from 'lucide-react';
+import { Menu, X, Globe, Phone, Mail, MapPin, Sun, Leaf, Flower2, Umbrella, Star, CheckCircle, ZoomIn, Quote, ArrowRight, User, LogOut, Play, Video, Send, FileText, ChevronDown, Calendar, Clock, Ruler } from 'lucide-react';
 import { Language, ProjectItem, Translation, ArticleItem } from './types';
 import { TRANSLATIONS, IMAGES, PROJECTS_DATA, TESTIMONIALS_DATA } from './constants';
 import { Logo } from './components/Logo';
@@ -9,20 +9,23 @@ import FloatingActions from './components/FloatingWhatsApp';
 import LegalModal from './components/LegalModal';
 import LoginModal from './components/LoginModal';
 import AnimatedCounter from './components/AnimatedCounter';
+import ParticleBackground from './components/ParticleBackground';
+import FAQ from './components/FAQ';
 
 // Component for smooth image loading with fallback
-const FadeInImage = ({ src, alt, className }: { src: string, alt: string, className?: string }) => {
+const FadeInImage = ({ src, alt, className, loading = "lazy" }: { src: string, alt: string, className?: string, loading?: "lazy" | "eager" }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(false);
 
   return (
     <div className={`relative overflow-hidden ${className} bg-gray-100`}>
       {!isLoaded && <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
-        <Logo className="w-8 h-8 opacity-20 grayscale" />
+        <div className="w-8 h-8 border-2 border-primary-300 border-t-primary-600 rounded-full animate-spin"></div>
       </div>}
       <motion.img
         src={error ? 'https://images.unsplash.com/photo-1558905540-21290104f953?q=80&w=1000' : src}
         alt={alt}
+        loading={loading}
         className={`${className} ${isLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}
         onLoad={() => setIsLoaded(true)}
         onError={() => { setIsLoaded(true); setError(true); }}
@@ -42,10 +45,8 @@ const ScrollToTop = () => {
 
 const PageHeader = ({ title, subtitle }: { title: string, subtitle?: string }) => (
   <div className="relative bg-primary-900 text-white py-24 pt-32 overflow-hidden">
-    <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/wood-pattern.png')]"></div>
-    {/* Abstract Shapes */}
-    <div className="absolute -right-20 top-0 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl"></div>
-    <div className="absolute -left-20 bottom-0 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
+    <ParticleBackground className="absolute inset-0 z-0 opacity-30" />
+    <div className="absolute inset-0 bg-gradient-to-b from-primary-900/80 to-primary-900/40 z-0"></div>
     
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
       <motion.h1 
@@ -137,6 +138,49 @@ const ArticlesSection = ({ t, lang }: { t: any, lang: Language }) => {
     );
 };
 
+const TimelineSection = ({ t, lang }: { t: any, lang: Language }) => {
+  return (
+    <section className="py-24 bg-white relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-16">
+          <span className="text-secondary font-bold tracking-wider uppercase text-sm mb-2 block">
+            {lang === 'ar' ? 'رحلة العمل' : 'Process'}
+          </span>
+          <h2 className="text-3xl md:text-4xl font-bold text-primary-900 mb-4 font-arabic">
+            {t.timeline.title}
+          </h2>
+          <div className="w-20 h-1.5 bg-secondary mx-auto rounded-full mb-4"></div>
+          <p className="text-gray-500 max-w-2xl mx-auto">{t.timeline.subtitle}</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+          {/* Connecting Line (Desktop) */}
+          <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gray-100 -z-10"></div>
+
+          {Object.entries(t.timeline.steps).map(([key, step]: [string, any], index) => (
+            <motion.div 
+              key={key}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.2 }}
+              className="relative flex flex-col items-center text-center group"
+            >
+              <div className="w-24 h-24 bg-white border-4 border-primary-100 rounded-full flex items-center justify-center mb-6 shadow-lg group-hover:border-secondary transition-colors duration-300 z-10">
+                <span className="text-3xl font-bold text-primary-600 group-hover:text-secondary transition-colors">
+                  {index + 1}
+                </span>
+              </div>
+              <h3 className="text-xl font-bold text-primary-900 mb-3 font-arabic">{step.title}</h3>
+              <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Home = ({ t, lang }: { t: any, lang: Language }) => {
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 500], [0, 150]);
@@ -151,14 +195,18 @@ const Home = ({ t, lang }: { t: any, lang: Language }) => {
           className="absolute inset-0 z-0"
         >
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30 z-10"></div>
+          {/* Image Background */}
           <FadeInImage 
             src={IMAGES.hero}
+            loading="eager"
             alt="Kuwait Garden Landscape"
-            className="w-full h-full object-cover scale-105"
+            className="w-full h-full object-cover scale-105 absolute inset-0"
           />
+          {/* Neural Network Overlay */}
+          <ParticleBackground className="absolute inset-0 z-20 opacity-60" color="rgba(255,255,255,0.4)" connectionColor="rgba(251, 191, 36, 0.5)" />
         </motion.div>
         
-        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+        <div className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
@@ -238,9 +286,12 @@ const Home = ({ t, lang }: { t: any, lang: Language }) => {
         </div>
       </section>
 
-      {/* Featured Video Section (Shorts Embed) */}
+      {/* Timeline Section */}
+      <TimelineSection t={t} lang={lang} />
+
+      {/* Featured Video Section (Autoplay Muted) */}
       <section className="py-20 bg-gray-900 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+        <ParticleBackground className="absolute inset-0 z-0 opacity-40" color="rgba(255,255,255,0.2)" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-white order-2 lg:order-1">
@@ -272,7 +323,7 @@ const Home = ({ t, lang }: { t: any, lang: Language }) => {
               <div className="relative w-[300px] md:w-[340px] aspect-[9/16] rounded-3xl overflow-hidden border-8 border-gray-800 shadow-2xl bg-black">
                 <iframe 
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/GUJtLdJmPrs?autoplay=1&mute=1&loop=1&playlist=GUJtLdJmPrs&controls=0&showinfo=0&rel=0" 
+                  src="https://www.youtube.com/embed/GUJtLdJmPrs?autoplay=1&mute=1&loop=1&playlist=GUJtLdJmPrs&controls=0&showinfo=0&rel=0&background=1" 
                   title="Jasmine Gardens Project" 
                   frameBorder="0" 
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
@@ -285,12 +336,23 @@ const Home = ({ t, lang }: { t: any, lang: Language }) => {
         </div>
       </section>
       
+      {/* FAQ Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-primary-900 mb-2 font-arabic">{t.faq.title}</h2>
+                <p className="text-gray-500">{t.faq.subtitle}</p>
+            </div>
+            <FAQ items={t.faq.items} lang={lang} />
+        </div>
+      </section>
+
       {/* Articles & Expertise Section */}
       <ArticlesSection t={t} lang={lang} />
 
       {/* Call to Action */}
       <section className="py-20 bg-gradient-to-r from-secondary-600 to-secondary-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-10"></div>
+        <ParticleBackground className="absolute inset-0 z-0 opacity-20" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center text-white">
             <h2 className="text-3xl md:text-5xl font-bold mb-6 font-arabic">{t.callAction.title}</h2>
             <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">{t.callAction.subtitle}</p>
@@ -322,6 +384,9 @@ const ServicesPage = ({ t }: { t: any }) => {
     }
   };
 
+  // State to track expanded service cards
+  const [expanded, setExpanded] = useState<number | null>(null);
+
   return (
     <>
       <PageHeader title={t.services.title} subtitle={t.services.subtitle} />
@@ -331,20 +396,45 @@ const ServicesPage = ({ t }: { t: any }) => {
                 {t.services.items.map((service: any) => (
                 <motion.div
                     key={service.id}
+                    layout
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    whileHover={{ y: -10 }}
-                    className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-gray-100 group flex flex-col h-full"
+                    className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all border border-gray-100 group flex flex-col"
                 >
                     <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mb-8 shadow-lg shadow-primary-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                       <div>{getIcon(service.icon)}</div>
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-primary-600 transition-colors font-arabic">{service.title}</h3>
-                    <p className="text-gray-500 leading-relaxed text-base flex-grow">{service.description}</p>
-                    <div className="mt-6 pt-6 border-t border-gray-50">
+                    
+                    <div className="text-gray-600 leading-relaxed text-base flex-grow mb-6">
+                        <p>{service.description}</p>
+                        {expanded === service.id && (
+                            <motion.div 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                className="mt-4 pt-4 border-t border-gray-100"
+                            >
+                                <p className="mb-4 text-sm text-gray-500">{service.longDescription}</p>
+                                <ul className="space-y-2">
+                                    {service.features?.map((feature: string, idx: number) => (
+                                        <li key={idx} className="flex items-center gap-2 text-sm font-bold text-primary-700">
+                                            <CheckCircle className="w-4 h-4" /> {feature}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </motion.div>
+                        )}
+                    </div>
+
+                    <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                       <button 
+                         onClick={() => setExpanded(expanded === service.id ? null : service.id)}
+                         className="text-gray-500 hover:text-primary-600 text-sm font-bold transition-colors"
+                       >
+                         {expanded === service.id ? 'عرض أقل' : 'تفاصيل أكثر'}
+                       </button>
                        <Link to="/contact" className="text-secondary font-bold hover:text-secondary-600 flex items-center gap-2 text-sm">
-                         {/* Arrow direction handled by flex-row in RTL */}
                          <span>اطلب الخدمة</span>
                          <ArrowRight className="w-4 h-4 rtl:rotate-180" />
                        </Link>
@@ -376,6 +466,7 @@ const ProjectsPage = ({ t, lang, onSelectProject }: { t: any, lang: Language, on
                     <FadeInImage
                       src={project.imageUrl}
                       alt={project.title[lang]}
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     {/* Gradient Overlay */}
@@ -408,6 +499,7 @@ const AboutPage = ({ t, lang }: { t: any, lang: Language }) => (
               <FadeInImage 
                 src={IMAGES.about} 
                 alt="About Jasmine Gardens" 
+                loading="lazy"
                 className="relative rounded-[2rem] shadow-2xl w-full h-[400px] lg:h-[500px] object-cover"
               />
               <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-2xl border-t-4 border-primary-500 max-w-xs z-20 hidden md:block">
@@ -523,32 +615,32 @@ const ContactPage = ({ t, lang, handleSubmit, formData, handleInputChange, error
               </div>
 
               <div className="space-y-6">
-                <a href="tel:+96569997026" className="flex items-center gap-6 group p-4 rounded-2xl hover:bg-gray-50 transition-colors">
-                  <div className="w-16 h-16 bg-white border border-gray-100 text-primary-600 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform shadow-md">
-                    <Phone className="w-7 h-7" />
+                <a href="tel:+96569997026" className="flex items-center gap-6 group p-6 rounded-2xl hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-gray-100 bg-gray-50">
+                  <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform">
+                    <Phone className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="block text-sm text-gray-500 mb-1">{lang === 'ar' ? 'اتصل بنا' : 'Call Us'}</span>
-                    <span className="text-2xl font-bold dir-ltr text-gray-900 font-sans">+965 6999 7026</span>
+                    <span className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">{lang === 'ar' ? 'اتصل بنا' : 'Call Us'}</span>
+                    <span className="text-xl font-bold dir-ltr text-gray-900 font-sans">+965 6999 7026</span>
                   </div>
                 </a>
 
-                <a href="mailto:info@jasminegardens.com" className="flex items-center gap-6 group p-4 rounded-2xl hover:bg-gray-50 transition-colors">
-                  <div className="w-16 h-16 bg-white border border-gray-100 text-primary-600 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform shadow-md">
-                    <Mail className="w-7 h-7" />
+                <a href="mailto:info@jasminegardens.com" className="flex items-center gap-6 group p-6 rounded-2xl hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-gray-100 bg-gray-50">
+                  <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform">
+                    <Mail className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="block text-sm text-gray-500 mb-1">{lang === 'ar' ? 'البريد الإلكتروني' : 'Email Us'}</span>
+                    <span className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">{lang === 'ar' ? 'البريد الإلكتروني' : 'Email Us'}</span>
                     <span className="text-lg font-bold text-gray-900 font-sans">info@jasminegardens.com</span>
                   </div>
                 </a>
 
-                <div className="flex items-center gap-6 p-4">
-                  <div className="w-16 h-16 bg-white border border-gray-100 text-primary-600 rounded-2xl flex items-center justify-center shadow-md">
-                    <MapPin className="w-7 h-7" />
+                <div className="flex items-center gap-6 group p-6 rounded-2xl hover:bg-white hover:shadow-xl transition-all border border-transparent hover:border-gray-100 bg-gray-50">
+                  <div className="w-14 h-14 bg-primary-100 text-primary-600 rounded-2xl flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all transform">
+                    <MapPin className="w-6 h-6" />
                   </div>
                   <div>
-                    <span className="block text-sm text-gray-500 mb-1">{lang === 'ar' ? 'موقعنا' : 'Location'}</span>
+                    <span className="block text-xs text-gray-500 mb-1 uppercase tracking-wider">{lang === 'ar' ? 'موقعنا' : 'Location'}</span>
                     <span className="text-lg font-bold text-gray-900">
                       {lang === 'ar' ? 'دولة الكويت، جميع المناطق' : 'Kuwait State, All Areas'}
                     </span>
@@ -775,7 +867,7 @@ function App() {
     }, 1500);
   };
 
-  // Direct WhatsApp Send Logic
+  // Direct WhatsApp Send Button
   const handleWhatsAppSubmit = () => {
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
@@ -814,13 +906,9 @@ function App() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Flex Container: In RTL, item 1 is Right, item 2 is Left. 
-              User asked for Logo Left and Nav Right.
-              So in RTL: Nav should be first child (Right), Logo should be second child (Left).
-          */}
           <div className="flex justify-between items-center">
             
-            {/* Desktop Nav - On Right in RTL (Start) */}
+            {/* Desktop Nav - On Right in RTL */}
             <div className="hidden lg:flex items-center gap-1">
                <div className={`flex items-center gap-1 px-2 py-1.5 rounded-full transition-all duration-300 ${scrolled ? 'bg-gray-100/80' : 'bg-black/20 backdrop-blur-sm border border-white/10'}`}>
                 {navLinks.map((link) => (
@@ -857,7 +945,7 @@ function App() {
                </button>
             </div>
 
-            {/* Mobile Menu Button - On Right in RTL (Start) */}
+            {/* Mobile Menu Button */}
             <div className="lg:hidden flex items-center gap-4">
                 <button 
                 className={`p-2 rounded-full z-50 transition-colors ${scrolled ? 'bg-gray-100 text-primary-800' : 'bg-black/20 text-white backdrop-blur-md border border-white/10'}`}
@@ -870,7 +958,7 @@ function App() {
                 </span>
             </div>
 
-            {/* Logo - On Left in RTL (End) */}
+            {/* Logo */}
             <Link to="/" className="flex items-center gap-3 group z-50">
                <div className="flex flex-col items-end">
                  <span className={`text-xl md:text-2xl font-bold leading-none transition-colors duration-300 ${scrolled || isMenuOpen ? 'text-primary-800' : 'text-white'}`}>
@@ -881,7 +969,7 @@ function App() {
                  </span>
                </div>
                <div className={`p-1 rounded-xl transition-all duration-300 ${scrolled ? 'bg-white/50' : 'bg-white/10 backdrop-blur-sm'}`}>
-                 <Logo className="w-10 h-10 md:w-12 md:h-12 group-hover:rotate-6 transition-transform duration-500" />
+                 <Logo className="w-32 h-10 md:w-40 md:h-12 group-hover:scale-105 transition-transform duration-500" />
                </div>
             </Link>
 
@@ -957,13 +1045,13 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-primary-900 text-white pt-20 pb-8 relative z-10 border-t border-primary-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="bg-primary-900 text-white pt-20 pb-8 relative z-10 border-t border-primary-800 overflow-hidden">
+        <ParticleBackground className="absolute inset-0 z-0 opacity-10" color="rgba(255,255,255,0.1)" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
              <div className="col-span-1 md:col-span-2">
                <div className="flex items-center gap-3 mb-6">
-                 <Logo className="w-12 h-12" />
-                 <h3 className="text-2xl font-bold font-arabic">{lang === 'ar' ? 'حدائق الياسمين' : 'Jasmine Gardens'}</h3>
+                 <Logo className="w-40 h-12 brightness-0 invert" />
                </div>
                <p className="text-primary-200 leading-relaxed max-w-sm mb-8">
                  {t.hero.subtitle}
@@ -1039,35 +1127,84 @@ function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 p-4 md:p-8 backdrop-blur-md"
+            className="fixed inset-0 z-[110] flex items-center justify-center bg-black/95 p-0 backdrop-blur-md"
             onClick={() => setSelectedProject(null)}
           >
             <button 
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 md:top-8 md:right-8 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-50"
+                className="absolute top-4 right-4 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-50"
             >
                 <X className="w-8 h-8" />
             </button>
 
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-6xl w-full h-full max-h-[85vh] flex flex-col items-center justify-center"
-              onClick={e => e.stopPropagation()}
-            >
-              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl">
-                 <img 
-                    src={selectedProject.imageUrl} 
-                    alt={selectedProject.title[lang]} 
-                    className="w-full h-full object-contain bg-black" 
-                 />
-              </div>
-              <div className="mt-6 text-center">
-                <span className="text-secondary font-bold tracking-wider mb-2 block text-sm uppercase">{selectedProject.category}</span>
-                <h3 className="text-3xl font-bold text-white font-arabic">{selectedProject.title[lang]}</h3>
-              </div>
-            </motion.div>
+            <div className="flex flex-col md:flex-row w-full h-full" onClick={e => e.stopPropagation()}>
+                {/* Image Section */}
+                <div className="flex-grow relative h-[60%] md:h-full bg-black flex items-center justify-center p-4">
+                    <motion.img 
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        src={selectedProject.imageUrl} 
+                        alt={selectedProject.title[lang]} 
+                        className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+                    />
+                </div>
+
+                {/* Sidebar Info Section */}
+                <div className="w-full md:w-[350px] bg-white p-8 overflow-y-auto h-[40%] md:h-full border-l border-gray-100 shadow-2xl relative z-40 flex flex-col justify-center">
+                    <div className="space-y-6">
+                        <div>
+                            <span className="text-secondary font-bold tracking-wider text-xs uppercase mb-2 block">{selectedProject.category}</span>
+                            <h3 className="text-3xl font-bold text-primary-900 font-arabic leading-tight">{selectedProject.title[lang]}</h3>
+                        </div>
+
+                        <div className="w-full h-px bg-gray-100"></div>
+
+                        {selectedProject.details && (
+                            <div className="space-y-4 text-sm">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg"><MapPin className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-gray-400 text-xs uppercase font-bold">{t.projects.details.location}</p>
+                                        <p className="font-bold text-gray-800">{selectedProject.details.location[lang]}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg"><Clock className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-gray-400 text-xs uppercase font-bold">{t.projects.details.duration}</p>
+                                        <p className="font-bold text-gray-800">{selectedProject.details.duration[lang]}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg"><Calendar className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-gray-400 text-xs uppercase font-bold">{t.projects.details.year}</p>
+                                        <p className="font-bold text-gray-800">{selectedProject.details.year}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-primary-50 text-primary-600 rounded-lg"><Ruler className="w-5 h-5" /></div>
+                                    <div>
+                                        <p className="text-gray-400 text-xs uppercase font-bold">{t.projects.details.scope}</p>
+                                        <p className="font-bold text-gray-800">{selectedProject.details.scope[lang]}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="pt-6">
+                            <Link 
+                                to="/contact" 
+                                onClick={() => setSelectedProject(null)}
+                                className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition-all"
+                            >
+                                {lang === 'ar' ? 'اطلب مثل هذا المشروع' : 'Request Similar Project'}
+                                <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

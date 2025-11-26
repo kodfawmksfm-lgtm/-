@@ -1,14 +1,14 @@
-import { Translation, ProjectItem, TestimonialItem } from './types';
+import { Translation, ProjectItem, TestimonialItem, ServiceItem } from './types';
 
-// Helper to convert Drive links to viewable URLs
-const getDriveImg = (id: string) => `https://lh3.googleusercontent.com/d/${id}`;
+// Helper to convert Drive links to viewable URLs - Switched to uc?export=view for better compatibility
+const getDriveImg = (id: string) => `https://drive.google.com/uc?export=view&id=${id}`;
 
 export const IMAGES = {
   hero: getDriveImg('1gcFPuTkQ01TQN11bb4G2kuRDy5nZJDY0'), 
   about: getDriveImg('1TeTlU7Pz0vYPK_dRN1YHmTpoBuCeDoR2'),
 };
 
-export const TRANSLATIONS: Record<'ar' | 'en', Translation> = {
+export const TRANSLATIONS: Record<'ar' | 'en', Translation & { faq: { title: string; subtitle: string; items: {question: string; answer: string}[] } }> = {
   ar: {
     nav: {
       home: 'الرئيسية',
@@ -18,7 +18,7 @@ export const TRANSLATIONS: Record<'ar' | 'en', Translation> = {
       about: 'عن الشركة',
       contact: 'اتصل بنا',
       lang: 'English',
-      login: 'دخول الموظفين',
+      login: 'بوابة العملاء',
       logout: 'تسجيل خروج',
     },
     hero: {
@@ -34,16 +34,68 @@ export const TRANSLATIONS: Record<'ar' | 'en', Translation> = {
       stats_projects: 'مشروع تم تنفيذه',
       stats_exp: 'سنوات من الخبرة',
     },
+    timeline: {
+      title: 'رحلة تحول حديقتك',
+      subtitle: 'خطوات مدروسة لضمان الدقة والجودة من الفكرة إلى التنفيذ',
+      steps: {
+        step1: { title: 'المعاينة والاستشارة', desc: 'زيارة ميدانية مجانية لرفع القياسات ومناقشة الأفكار.' },
+        step2: { title: 'التصميم الهندسي 3D', desc: 'تقديم مخطط ثلاثي الأبعاد لرؤية الشكل النهائي قبل البدء.' },
+        step3: { title: 'التنفيذ والتركيب', desc: 'فريق فني محترف يبدأ العمل باستخدام أفضل المواد.' },
+        step4: { title: 'التسليم والضمان', desc: 'تسليم المشروع نظيفاً مع شهادة ضمان معتمدة.' },
+      }
+    },
     services: {
       title: 'خدماتنا المتكاملة',
       subtitle: 'كل ما تحتاجه لمساحتك الخارجية تحت سقف واحد',
       items: [
-        { id: 1, title: 'مظلات وسواتر', description: 'تصميم وتركيب مظلات السيارات والحدائق (خشب، قماش، كيربي، K-Span) بأحدث التصاميم الهندسية المقاومة للرياح والشمس.', icon: 'Sun' },
-        { id: 2, title: 'عشب صناعي وجداري', description: 'توريد وتركيب عشب صناعي عالي الكثافة (50مم - 40مم) وتكسيات خضراء للجدران بمظهر طبيعي 100% وكفالة حقيقية.', icon: 'Sprout' },
-        { id: 3, title: 'لاندسكيب وتصاميم 3D', description: 'تخطيط هندسي كامل للحديقة قبل التنفيذ وتوزيع النباتات والإضاءة وشبكات الري الحديثة بأحدث التقنيات.', icon: 'Trees' },
-        { id: 4, title: 'جلسات خارجية وبرجولات', description: 'برجولات خشبية وحديد (WPC) وجلسات مودرن تخلق جواً عائلياً دافئاً في حديقتك مع إضاءة مخفية.', icon: 'Ruler' },
-        { id: 5, title: 'ملاعب رياضية', description: 'تجهيز ملاعب كرة القدم والبادل والتنس بأرضيات معتمدة ومواصفات قياسية عالمية.', icon: 'Car' },
-        { id: 6, title: 'غرف زجاجية (Sunroom)', description: 'تحويل المساحات الخارجية إلى غرف زجاجية مكيفة صالحة للاستخدام طوال العام بإطلالة بانورامية.', icon: 'Paintbrush' },
+        { 
+          id: 1, 
+          title: 'مظلات وسواتر', 
+          description: 'تصميم وتركيب مظلات السيارات والحدائق (خشب، قماش، كيربي، K-Span) بأحدث التصاميم الهندسية.', 
+          icon: 'Sun',
+          longDescription: 'نقدم حلولاً متكاملة للتظليل تشمل مظلات الكيربي المعزولة، مظلات القماش الأسترالي (HDPE) المقاومة للأشعة فوق البنفسجية، ومظلات الكي سبان (K-Span) التي توفر حماية قصوى للسيارات. هياكلنا الحديدية معالجة ضد الصدأ ومصبوغة بأفران حرارية.',
+          features: ['عزل حراري 100%', 'ضمان 10 سنوات على الكي سبان', 'تصاميم عصرية تناسب واجهة المنزل']
+        },
+        { 
+          id: 2, 
+          title: 'عشب صناعي وجداري', 
+          description: 'توريد وتركيب عشب صناعي عالي الكثافة (50مم - 40مم) وتكسيات خضراء للجدران بمظهر طبيعي.', 
+          icon: 'Sprout',
+          longDescription: 'عشبنا الصناعي مصمم خصيصاً ليحاكي العشب الطبيعي في الملمس واللون، مع كثافة عالية تصل إلى 18,000 غرزة للمتر. يحتوي على ثقوب تصريف للمياه لمنع الروائح ومقاوم لدرجات الحرارة حتى 60 درجة مئوية.',
+          features: ['لا يحتاج ري أو قص', 'آمن للأطفال والحيوانات الأليفة', 'مقاوم لتغير اللون']
+        },
+        { 
+          id: 3, 
+          title: 'لاندسكيب وتصاميم 3D', 
+          description: 'تخطيط هندسي كامل للحديقة قبل التنفيذ وتوزيع النباتات والإضاءة وشبكات الري الحديثة.', 
+          icon: 'Trees',
+          longDescription: 'قبل البدء بأي عمل، يقوم مهندسونا برسم مخطط ثلاثي الأبعاد (3D) لحديقتك، مما يتيح لك رؤية النتيجة النهائية وتعديلها. نختار نباتات ملائمة للبيئة الكويتية ونوزع الإضاءة بشكل يبرز جمالية المكان ليلاً.',
+          features: ['معاينة مجانية', 'تصميم واقعي', 'توزيع مدروس للإضاءة']
+        },
+        { 
+          id: 4, 
+          title: 'جلسات خارجية وبرجولات', 
+          description: 'برجولات خشبية وحديد (WPC) وجلسات مودرن تخلق جواً عائلياً دافئاً في حديقتك.', 
+          icon: 'Ruler',
+          longDescription: 'نصمم وننفذ جلسات خارجية فاخرة باستخدام خشب WPC المعالج الذي يقاوم الرطوبة والنمل الأبيض، أو الحديد المشغول بتصاميم ليزر عصرية. تشمل الجلسات تمديدات كهربائية مخفية للمراوح والإضاءة.',
+          features: ['مقاومة للماء والشمس', 'تصاميم حسب الطلب', 'إمكانية إضافة ستائر جانبية']
+        },
+        { 
+          id: 5, 
+          title: 'ملاعب رياضية', 
+          description: 'تجهيز ملاعب كرة القدم والبادل والتنس بأرضيات معتمدة ومواصفات قياسية.', 
+          icon: 'Car',
+          longDescription: 'نقوم بتجهيز الملاعب الرياضية (كرة قدم، بادل، سلة) بدءاً من الأعمال الترابية والخرسانية وصولاً إلى فرش الأرضيات المطاطية (EPDM) أو العشب المعتمد من الفيفا، مع تركيب الشبك والإنارة.',
+          features: ['مواصفات قانونية', 'أرضيات ممتصة للصدمات', 'إنارة كاشفة للملاعب']
+        },
+        { 
+          id: 6, 
+          title: 'غرف زجاجية (Sunroom)', 
+          description: 'تحويل المساحات الخارجية إلى غرف زجاجية مكيفة صالحة للاستخدام طوال العام.', 
+          icon: 'Paintbrush',
+          longDescription: 'الغرف الزجاجية هي الحل الأمثل للاستمتاع بالحديقة في صيف الكويت الحار. نستخدم زجاج مزدوج (Double Glazing) عازل للحرارة وهياكل ألمنيوم متينة، مع إمكانية تكييف المكان بالكامل.',
+          features: ['عزل حراري ممتاز', 'إطلالة بانورامية', 'زيادة مساحة المنزل']
+        },
       ],
     },
     articles: {
@@ -91,10 +143,38 @@ export const TRANSLATIONS: Record<'ar' | 'en', Translation> = {
       title: 'من أعمالنا',
       subtitle: 'صور حقيقية لمشاريع قمنا بتنفيذها في مناطق الكويت المختلفة',
       viewMore: 'تحميل المزيد',
+      details: {
+        location: 'الموقع:',
+        duration: 'مدة التنفيذ:',
+        year: 'السنة:',
+        scope: 'نطاق العمل:',
+      }
     },
     testimonials: {
       title: 'قالوا عنا',
       subtitle: 'شهادات نعتز بها من عملائنا الكرام',
+    },
+    faq: {
+      title: 'أسئلة شائعة',
+      subtitle: 'إجابات على استفساراتكم المتكررة حول خدماتنا',
+      items: [
+        {
+          question: 'كم مدة كفالة العشب الصناعي؟',
+          answer: 'نقدم كفالة تصل إلى 5 سنوات على العشب الصناعي ضد تغير اللون وتآكل الشعيرات، مع ضمان جودة التركيب.'
+        },
+        {
+          question: 'هل تقومون بتركيب مظلات الكي سبان (K-Span)؟',
+          answer: 'نعم، نحن متخصصون في توريد وتركيب مظلات الكي سبان المعزولة وبدون أعمدة للمساحات الكبيرة ومواقف السيارات.'
+        },
+        {
+          question: 'هل المعاينة والتصميم مجاني؟',
+          answer: 'نعم، نقوم بزيارة الموقع ورفع القياسات وتقديم الاستشارة المبدئية مجاناً لجميع مناطق الكويت.'
+        },
+        {
+          question: 'كيف يتم حساب تكلفة تنسيق الحديقة؟',
+          answer: 'تعتمد التكلفة على المساحة بالمتر المربع، نوع المواد المختارة (عشب، بلاط، مظلات)، وتعقيد التصميم. نقدم عرض سعر تفصيلي بعد المعاينة.'
+        }
+      ]
     },
     callAction: {
       title: 'هل لديك مشروع في بالك؟',
@@ -115,10 +195,10 @@ export const TRANSLATIONS: Record<'ar' | 'en', Translation> = {
       close: 'أوافق وأغلق',
     },
     login: {
-      title: 'نظام إدارة المشاريع',
-      username: 'اسم المستخدم',
+      title: 'بوابة الدخول',
+      username: 'اسم المستخدم / رقم الملف',
       password: 'كلمة المرور',
-      submit: 'دخول',
+      submit: 'تسجيل دخول',
       welcome: 'أهلاً بك،',
     },
   },
@@ -131,7 +211,7 @@ export const TRANSLATIONS: Record<'ar' | 'en', Translation> = {
       about: 'About Us',
       contact: 'Contact Us',
       lang: 'العربية',
-      login: 'Staff Login',
+      login: 'Client Portal',
       logout: 'Logout',
     },
     hero: {
@@ -147,16 +227,68 @@ export const TRANSLATIONS: Record<'ar' | 'en', Translation> = {
       stats_projects: 'Projects Done',
       stats_exp: 'Years Experience',
     },
+    timeline: {
+      title: 'Our Working Process',
+      subtitle: 'Calculated steps to ensure precision and quality from concept to execution',
+      steps: {
+        step1: { title: 'Consultation', desc: 'Free site visit to take measurements and discuss ideas.' },
+        step2: { title: '3D Design', desc: 'Providing a 3D visualization to see the final look before starting.' },
+        step3: { title: 'Execution', desc: 'Professional technical team starts work using the best materials.' },
+        step4: { title: 'Handover', desc: 'Clean project handover with a certified warranty certificate.' },
+      }
+    },
     services: {
       title: 'Our Integrated Services',
       subtitle: 'Everything you need for your outdoor space under one roof',
       items: [
-        { id: 1, title: 'Shades & Pergolas', description: 'Design and installation of car and garden shades (Wood, Fabric, Kirby, K-Span) with modern engineering designs resistant to wind and sun.', icon: 'Sun' },
-        { id: 2, title: 'Artificial Grass & Walls', description: 'Supply and installation of high-density artificial grass (50mm - 40mm) and natural-looking green wall cladding with real warranty.', icon: 'Sprout' },
-        { id: 3, title: 'Landscaping & 3D Design', description: 'Complete engineering planning for the garden before execution, including plant distribution, lighting, and modern irrigation systems.', icon: 'Trees' },
-        { id: 4, title: 'Outdoor Seating & Decking', description: 'Wooden and iron pergolas (WPC) and modern seating areas that create a warm family atmosphere in your garden.', icon: 'Ruler' },
-        { id: 5, title: 'Sports Courts', description: 'Equipping football, padel, and tennis courts with certified flooring and standard specifications.', icon: 'Car' },
-        { id: 6, title: 'Glass Rooms (Sunrooms)', description: 'Transforming outdoor spaces into air-conditioned glass rooms suitable for year-round use with panoramic views.', icon: 'Paintbrush' },
+        { 
+          id: 1, 
+          title: 'Shades & Pergolas', 
+          description: 'Design and installation of car and garden shades (Wood, Fabric, Kirby, K-Span).', 
+          icon: 'Sun',
+          longDescription: 'We provide complete shading solutions including insulated Kirby shades, UV-resistant Australian HDPE fabric shades, and K-Span shades offering maximum car protection. Our steel structures are anti-rust treated and thermal oven painted.',
+          features: ['100% Heat Insulation', '10-Year Warranty on K-Span', 'Modern Designs matching home facade']
+        },
+        { 
+          id: 2, 
+          title: 'Artificial Grass & Walls', 
+          description: 'Supply and installation of high-density artificial grass (50mm - 40mm) and green walls.', 
+          icon: 'Sprout',
+          longDescription: 'Our artificial grass is designed to mimic natural grass in texture and color, with high density up to 18,000 stitches/m. It features drainage holes to prevent odors and withstands heat up to 60°C.',
+          features: ['No watering or mowing', 'Safe for kids & pets', 'Color fade resistant']
+        },
+        { 
+          id: 3, 
+          title: 'Landscaping & 3D Design', 
+          description: 'Complete engineering planning for the garden before execution, including plants and lighting.', 
+          icon: 'Trees',
+          longDescription: 'Before starting any work, our engineers create a 3D plan for your garden, allowing you to visualize and adjust the final result. We select plants suitable for the Kuwaiti environment and distribute lighting to enhance nighttime aesthetics.',
+          features: ['Free Site Visit', 'Realistic Design', 'Strategic Lighting Layout']
+        },
+        { 
+          id: 4, 
+          title: 'Outdoor Seating & Decking', 
+          description: 'Wooden and iron pergolas (WPC) and modern seating areas for a warm family atmosphere.', 
+          icon: 'Ruler',
+          longDescription: 'We design and execute luxury outdoor seating using treated WPC wood that resists humidity and termites, or wrought iron with modern laser designs. Seating includes hidden electrical wiring for fans and lighting.',
+          features: ['Water & Sun Resistant', 'Custom Designs', 'Optional Side Curtains']
+        },
+        { 
+          id: 5, 
+          title: 'Sports Courts', 
+          description: 'Equipping football, padel, and tennis courts with certified flooring and standard specifications.', 
+          icon: 'Car',
+          longDescription: 'We equip sports courts (Football, Padel, Basketball) starting from earthworks and concrete to laying EPDM rubber flooring or FIFA-certified grass, including netting and lighting installation.',
+          features: ['Legal Specifications', 'Shock-Absorbing Flooring', 'Floodlights for Courts']
+        },
+        { 
+          id: 6, 
+          title: 'Glass Rooms (Sunrooms)', 
+          description: 'Transforming outdoor spaces into air-conditioned glass rooms suitable for year-round use.', 
+          icon: 'Paintbrush',
+          longDescription: 'Sunrooms are the ideal solution to enjoy the garden during Kuwait\'s hot summer. We use heat-insulated Double Glazing and durable aluminum structures, with full air-conditioning capability.',
+          features: ['Excellent Heat Insulation', 'Panoramic View', 'Increased Home Space']
+        },
       ],
     },
     articles: {
@@ -204,10 +336,38 @@ For gardens, we prefer using Aluminum pergolas with a wood-effect finish, combin
       title: 'Our Portfolio',
       subtitle: 'Real photos of projects we have executed across Kuwait',
       viewMore: 'Load More',
+      details: {
+        location: 'Location:',
+        duration: 'Execution Time:',
+        year: 'Year:',
+        scope: 'Work Scope:',
+      }
     },
     testimonials: {
       title: 'Testimonials',
       subtitle: 'Feedback we are proud of from our valued clients',
+    },
+    faq: {
+      title: 'Frequently Asked Questions',
+      subtitle: 'Answers to your common inquiries about our services',
+      items: [
+        {
+          question: 'How long is the artificial grass warranty?',
+          answer: 'We offer a warranty of up to 5 years on artificial grass against color fading and fiber degradation, along with an installation quality guarantee.'
+        },
+        {
+          question: 'Do you install K-Span shades?',
+          answer: 'Yes, we specialize in supplying and installing insulated K-Span shades without columns for large areas and car parks.'
+        },
+        {
+          question: 'Is the consultation and design free?',
+          answer: 'Yes, we visit the site, take measurements, and provide initial consultation free of charge for all areas in Kuwait.'
+        },
+        {
+          question: 'How is landscaping cost calculated?',
+          answer: 'Cost depends on area per sqm, selected materials (grass, tiles, shades), and design complexity. We provide a detailed quotation after the site visit.'
+        }
+      ]
     },
     callAction: {
       title: 'Have a project in mind?',
@@ -228,8 +388,8 @@ For gardens, we prefer using Aluminum pergolas with a wood-effect finish, combin
       close: 'Agree & Close',
     },
     login: {
-      title: 'Project Management System',
-      username: 'Username',
+      title: 'Login Portal',
+      username: 'Username / File No.',
       password: 'Password',
       submit: 'Login',
       welcome: 'Welcome,',
@@ -237,103 +397,199 @@ For gardens, we prefer using Aluminum pergolas with a wood-effect finish, combin
   },
 };
 
-// Mapped Google Drive Images
+// Mapped Google Drive Images with enhanced details
 export const PROJECTS_DATA: ProjectItem[] = [
   {
     id: 100,
     imageUrl: getDriveImg('1oEl3kMLZEJS-i0zd8wRjh4HMs1eH8RkI'),
     category: 'Outdoor Seating',
     title: { ar: 'جلسة خارجية مميزة', en: 'Premium Outdoor Seating' },
+    details: {
+      location: { ar: 'المسايل', en: 'Al-Masayel' },
+      duration: { ar: '10 أيام', en: '10 Days' },
+      year: '2024',
+      scope: { ar: 'تصميم وتنفيذ جلسة خارجية مع عشب', en: 'Design and execution of outdoor seating with grass' }
+    }
   },
   {
     id: 1,
     imageUrl: getDriveImg('1I_XZ5GABNEKd1Xf4Tdedoz1OLzLyMltu'),
     category: 'Pergolas',
     title: { ar: 'مظلة حدائق مودرن', en: 'Modern Garden Pergola' },
+    details: {
+      location: { ar: 'الزهراء', en: 'Al-Zahra' },
+      duration: { ar: 'أسبوع واحد', en: '1 Week' },
+      year: '2023',
+      scope: { ar: 'مظلة خشبية مع إضاءة مخفية', en: 'Wooden pergola with hidden lighting' }
+    }
   },
   {
     id: 2,
     imageUrl: getDriveImg('1TeTlU7Pz0vYPK_dRN1YHmTpoBuCeDoR2'),
     category: 'Landscaping',
     title: { ar: 'تنسيق حديقة منزلية', en: 'Home Garden Landscaping' },
+    details: {
+      location: { ar: 'جنوب السرة', en: 'South Surra' },
+      duration: { ar: '15 يوم', en: '15 Days' },
+      year: '2024',
+      scope: { ar: 'لاندسكيب كامل مع شبكة ري', en: 'Full landscape with irrigation system' }
+    }
   },
   {
     id: 3,
     imageUrl: getDriveImg('1ynRdmuRZSJeXyEaL4BVPw-HbfBLkqRPx'),
     category: 'Wall Cladding',
     title: { ar: 'ديكورات خشبية للجدران', en: 'Wooden Wall Decor' },
+    details: {
+      location: { ar: 'القرين', en: 'Al-Qurain' },
+      duration: { ar: '5 أيام', en: '5 Days' },
+      year: '2023',
+      scope: { ar: 'تكسيات خشب WPC للجدران', en: 'WPC wooden wall cladding' }
+    }
   },
   {
     id: 4,
     imageUrl: getDriveImg('1q9B0_YK10nxFf-ksma7UULly4dAY42L_'),
     category: 'Green Walls',
     title: { ar: 'تكسيات عشب جداري', en: 'Green Wall Cladding' },
+    details: {
+      location: { ar: 'السالمية', en: 'Salmiya' },
+      duration: { ar: '3 أيام', en: '3 Days' },
+      year: '2023',
+      scope: { ar: 'عشب جداري كثيف مع زهور', en: 'Dense green wall with flowers' }
+    }
   },
   {
     id: 5,
     imageUrl: getDriveImg('1rsX8h33PZXUoO1oY2hgaesvLSkhD1dt8'),
     category: 'Pergolas',
     title: { ar: 'جلسة خارجية فخمة', en: 'Luxury Outdoor Seating' },
+    details: {
+      location: { ar: 'الشامية', en: 'Shamiya' },
+      duration: { ar: '20 يوم', en: '20 Days' },
+      year: '2024',
+      scope: { ar: 'جلسة متكاملة مع برجولة وممرات', en: 'Complete seating with pergola and walkways' }
+    }
   },
   {
     id: 6,
     imageUrl: getDriveImg('14uuXR1d5mgvkH2EPxlmTCBiNHYmBUUSU'),
     category: 'Car Shades',
     title: { ar: 'مظلات سيارات', en: 'Car Parking Shades' },
+    details: {
+      location: { ar: 'العبدلي', en: 'Abdali' },
+      duration: { ar: 'أسبوعين', en: '2 Weeks' },
+      year: '2023',
+      scope: { ar: 'مظلات كي سبان لمواقف المزرعة', en: 'K-Span shades for farm parking' }
+    }
   },
   {
     id: 7,
     imageUrl: getDriveImg('1yHXRmlRIN4HLr7vzdgyZIkq43Ax58KdE'),
     category: 'Walkways',
     title: { ar: 'ممرات حجرية وعشب', en: 'Stone Walkways' },
+    details: {
+      location: { ar: 'قرطبة', en: 'Qortuba' },
+      duration: { ar: 'أسبوع', en: '1 Week' },
+      year: '2023',
+      scope: { ar: 'تركيب ممرات حجر طبيعي', en: 'Natural stone walkway installation' }
+    }
   },
   {
     id: 8,
     imageUrl: getDriveImg('1u3MmlV5iwr7-m2Thjr7aDgNn44MBT9o_'),
     category: 'Landscaping',
     title: { ar: 'تصميم ممرات حدائق', en: 'Garden Path Design' },
+    details: {
+      location: { ar: 'الروضة', en: 'Rawda' },
+      duration: { ar: '4 أيام', en: '4 Days' },
+      year: '2024',
+      scope: { ar: 'تصميم ممرات ديكورية', en: 'Decorative path design' }
+    }
   },
   {
     id: 9,
     imageUrl: getDriveImg('1pUA0ylTG3prVeM1qrR7uk5rfF_dyMtxt'),
     category: 'Pergolas',
     title: { ar: 'برجولة ألمنيوم', en: 'Aluminum Pergola' },
+    details: {
+      location: { ar: 'الخيران', en: 'Khiran' },
+      duration: { ar: '10 أيام', en: '10 Days' },
+      year: '2023',
+      scope: { ar: 'برجولة ألمنيوم مقاومة للصدأ', en: 'Rust-proof aluminum pergola' }
+    }
   },
   {
     id: 10,
     imageUrl: getDriveImg('10Fhi5I-_KUJA71boueANcPtS6JadtCMa'),
     category: 'Seating',
     title: { ar: 'جلسة أرضية خارجية', en: 'Outdoor Floor Seating' },
+    details: {
+      location: { ar: 'كبد', en: 'Kabuhd' },
+      duration: { ar: 'أسبوع', en: '1 Week' },
+      year: '2024',
+      scope: { ar: 'جلسة شعبية مطورة', en: 'Modernized traditional seating' }
+    }
   },
   {
     id: 11,
     imageUrl: getDriveImg('1y7rcLrhzQ9xNiSbpxHp2nXvLmsfoVhot'),
     category: 'Decor',
     title: { ar: 'ديكورات خارجية', en: 'Outdoor Decorations' },
+    details: {
+      location: { ar: 'مشرف', en: 'Mishref' },
+      duration: { ar: '3 أيام', en: '3 Days' },
+      year: '2023',
+      scope: { ar: 'تزيين السور الخارجي', en: 'Outer fence decoration' }
+    }
   },
   {
     id: 12,
     imageUrl: getDriveImg('1AfdBqqXbUqPGwr9gFXTyQHs7uqn2_9BR'),
     category: 'Landscaping',
     title: { ar: 'تنسيق عشب صناعي', en: 'Artificial Grass Layout' },
+    details: {
+      location: { ar: 'صباح الأحمد', en: 'Sabah Al-Ahmad' },
+      duration: { ar: 'يومين', en: '2 Days' },
+      year: '2024',
+      scope: { ar: 'فرش عشب صناعي 50مم', en: '50mm artificial grass installation' }
+    }
   },
   {
     id: 13,
     imageUrl: getDriveImg('1jBnFZT0Ym3d2G-hH2DtFMzz7t8vOqz1v'),
     category: 'Structures',
     title: { ar: 'أعمال حدادة ومظلات', en: 'Steel & Shade Works' },
+    details: {
+      location: { ar: 'الوفرة', en: 'Wafra' },
+      duration: { ar: 'شهر', en: '1 Month' },
+      year: '2023',
+      scope: { ar: 'مظلات سيارات ومخازن', en: 'Car shades and storage covers' }
+    }
   },
   {
     id: 14,
     imageUrl: getDriveImg('1EkBS_TGq780N0gd2do-kiWmgMH5xCI2f'),
     category: 'Green Walls',
     title: { ar: 'جدار أخضر صناعي', en: 'Artificial Green Wall' },
+    details: {
+      location: { ar: 'بيان', en: 'Bayan' },
+      duration: { ar: 'يومين', en: '2 Days' },
+      year: '2024',
+      scope: { ar: 'تركيب عشب جداري', en: 'Wall grass installation' }
+    }
   },
   {
     id: 15,
     imageUrl: getDriveImg('16Le8RTIH9ReQ6breOPA7BVK3RYUifMCI'),
     category: 'Walkways',
     title: { ar: 'بلاط متداخل وممرات', en: 'Interlock & Walkways' },
+    details: {
+      location: { ar: 'الفردوس', en: 'Firdous' },
+      duration: { ar: 'أسبوع', en: '1 Week' },
+      year: '2023',
+      scope: { ar: 'توريد وتركيب كاشي متداخل', en: 'Supply and install interlocking tiles' }
+    }
   },
 ];
 
